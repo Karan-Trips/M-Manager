@@ -21,7 +21,12 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
+def keystoreProperties = new Properties() 
+def keystorePropertiesFile = rootProject.file('android/key.properties') 
 
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
 android {
     namespace "com.example.try1"
     compileSdkVersion flutter.compileSdkVersion
@@ -52,13 +57,19 @@ android {
         multiDexEnabled true
     }
 
-    buildTypes {
+   signingConfigs {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            keyAlias keystoreProperties['keyAlias'] ?: "upload"
+            keyPassword keystoreProperties['keyPassword'] ?: "123456"
+            storeFile file(keystoreProperties['storeFile'] ?: "C:\\Users\\karan\\upload-keystore.jks")
+            storePassword keystoreProperties['storePassword'] ?: "123456"
         }
+   }
+buildTypes {
+    release {
+        signingConfig signingConfigs.release
     }
+}
 }
 
 flutter {
