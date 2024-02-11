@@ -70,7 +70,6 @@ class MoneyManagerHomePage extends StatelessWidget {
               width: 250,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to AddTransactionPage
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -78,9 +77,9 @@ class MoneyManagerHomePage extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent, // Background color
-                  foregroundColor: Colors.white, // Text color
-                  shadowColor: Colors.blueAccent, // Shadow color
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.blueAccent,
                 ),
                 child: const Text(
                   'Add Transaction',
@@ -91,11 +90,9 @@ class MoneyManagerHomePage extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(
               height: 50,
             ),
-
             SizedBox(
               height: 70,
               width: 250,
@@ -118,7 +115,6 @@ class MoneyManagerHomePage extends StatelessWidget {
                 ),
               ),
             ),
-            // Add more buttons for other features
           ],
         ),
       ),

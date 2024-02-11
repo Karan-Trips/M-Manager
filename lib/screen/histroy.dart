@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:try1/screen/graph.dart';
 
 class ExpenseSummaryPage extends StatefulWidget {
   const ExpenseSummaryPage({super.key});
@@ -11,36 +12,73 @@ class ExpenseSummaryPage extends StatefulWidget {
   State<ExpenseSummaryPage> createState() => _ExpenseSummaryPageState();
 }
 
-class _ExpenseSummaryPageState extends State<ExpenseSummaryPage> {
+class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
+    with SingleTickerProviderStateMixin {
   late Future<List<Map<String, dynamic>>> _expenseData;
+  double currentIncome = 0.0;
+  bool showDetails = false;
+  late TabController _tabController;
+  int selectedIndex = 0;
+
+  // Define colors for tabs
+  Color historyTabColor = Colors.deepOrangeAccent;
+  Color graphTabColor = Colors.green;
 
   @override
   void initState() {
     super.initState();
     _expenseData = fetchExpenseData();
+    fetchCurrentIncome();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchCurrentIncome() async {
+    try {
+      CollectionReference incomes =
+          FirebaseFirestore.instance.collection('incomes');
+
+      DocumentReference incomeDocument = incomes.doc('income_document');
+
+      DocumentSnapshot documentSnapshot = await incomeDocument.get();
+
+      if (documentSnapshot.exists) {
+        setState(() {
+          currentIncome =
+              (documentSnapshot.data() as Map<String, dynamic>)['income'] ??
+                  0.0;
+        });
+      }
+    } catch (error) {
+      print("Failed to fetch current income: $error");
+    }
   }
 
   Future<List<Map<String, dynamic>>> fetchExpenseData() async {
-    List<Map<String, dynamic>> expenseList = [];
-
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance.collection('expenses').get();
 
-    for (var doc in querySnapshot.docs) {
+    return querySnapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       data['id'] = doc.id;
-      expenseList.add(data);
-    }
-
-    return expenseList;
+      return data;
+    }).toList();
   }
 
   double calculateTotal(List<Map<String, dynamic>> expenses) {
-    double totalAmount = 0.0;
-    for (var expense in expenses) {
-      totalAmount += expense['amount'];
-    }
-    return totalAmount;
+    return expenses.fold(
+        0.0, (total, expense) => total + (expense['amount'] ?? 0.0));
+  }
+
+  double calculateLeftBalance(
+      double currentIncome, List<Map<String, dynamic>> expenses) {
+    double totalAmount = calculateTotal(expenses);
+    return currentIncome - totalAmount;
   }
 
   void deleteExpense(String documentId) {
@@ -50,21 +88,16 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage> {
         .delete()
         .then((value) {
       print('Expense deleted');
-      // Fetch updated data after deleting an item
+
       setState(() {
         _expenseData = fetchExpenseData();
       });
     }).catchError((error) => print('Failed to delete expense: $error'));
-  }
 
-  List<Map<String, dynamic>> expenseList = [];
-  void sortExpensesByDate() {
+    // Change colors when deleting an expense
     setState(() {
-      expenseList.sort((a, b) {
-        DateTime dateTimeA = DateTime.parse(a['date']['time']);
-        DateTime dateTimeB = DateTime.parse(b['date']['time']);
-        return dateTimeA.compareTo(dateTimeB);
-      });
+      historyTabColor = Colors.blue; // Change color for "History" tab
+      graphTabColor = Colors.green; // Change color for "Graph" tab
     });
   }
 
@@ -74,126 +107,196 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage> {
       appBar: AppBar(
         actions: [
           IconButton(
-              onPressed: sortExpensesByDate, icon: const Icon(Icons.sort_sharp))
+            onPressed: () {
+              // todo :add sorting
+              print("sort");
+            },
+            icon: const Icon(Icons.sort_sharp),
+          ),
         ],
         backgroundColor:
             ThemeProvider.themeOf(context).data.appBarTheme.backgroundColor,
         title: const Text('Expense Summary'),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _expenseData,
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  // Handle the error here
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No expenses found.'));
-                }
-                return Expanded(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    separatorBuilder: (BuildContext context, int index) =>
-                        const Divider(),
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Card(
-                        color: Theme.of(context).cardColor,
-                        elevation: 5,
-                        // color: Colors.amberAccent,
-                        child: ListTile(
-                          isThreeLine: true,
-                          trailing: IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: const Text('Confirm Deletion'),
-                                      content: const Text(
-                                          'Are you sure you want to delete this?'),
-                                      actions: <Widget>[
-                                        TextButton(
-                                          child: const Text('Cancel'),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                        TextButton(
-                                          child: const Text('Delete'),
-                                          onPressed: () {
-                                            setState(() {
-                                              deleteExpense(
-                                                  snapshot.data![index]['id']);
-                                            });
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              }),
-                          leading: Column(
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _expenseData,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No expenses found.'));
+                    }
+                    return Expanded(
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        separatorBuilder: (BuildContext context, int index) =>
+                            const Divider(),
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Card(
+                            color: Theme.of(context).cardColor,
+                            elevation: 5,
+                            child: ListTile(
+                              isThreeLine: true,
+                              trailing: IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('Confirm Deletion'),
+                                        content: const Text(
+                                            'Are you sure you want to delete this?'),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: const Text('Cancel'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          TextButton(
+                                            child: const Text('Delete'),
+                                            onPressed: () {
+                                              setState(() {
+                                                deleteExpense(snapshot
+                                                    .data![index]['id']);
+                                              });
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              leading: Column(
+                                children: [
+                                  Text('${snapshot.data![index]['date']}'),
+                                  Text('${snapshot.data![index]['time']}'),
+                                ],
+                              ),
+                              title: Text(
+                                '${snapshot.data![index]['category']}',
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
+                              ),
+                              subtitle: Column(
+                                children: [
+                                  Text(
+                                      'Amount: ${snapshot.data![index]['amount']}'),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: _expenseData,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        !snapshot.hasData ||
+                        snapshot.data!.isEmpty) {
+                      return const SizedBox.shrink();
+                    } else {
+                      double totalAmount = calculateTotal(snapshot.data!);
+                      double leftBalance =
+                          calculateLeftBalance(currentIncome, snapshot.data!);
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            showDetails = !showDetails;
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Column(
                             children: [
-                              Text('${snapshot.data![index]['date']}'),
-                              Text('${snapshot.data![index]['time']}'),
-                            ],
-                          ),
-                          title: Text(
-                            '${snapshot.data![index]['category']}',
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 15),
-                          ),
-                          subtitle: Column(
-                            children: [
-                              Text(
-                                  'Amount: ${snapshot.data![index]['amount']}'),
+                              Center(
+                                child: Text(
+                                  'Total Amount: $totalAmount',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  ),
+                                ),
+                              ),
+                              if (showDetails) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Current Income: $currentIncome',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Balance Left: $leftBalance',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
                       );
-                    },
-                  ),
-                );
-              },
+                    }
+                  },
+                ),
+              ],
             ),
-            FutureBuilder<List<Map<String, dynamic>>>(
-              future: _expenseData,
-              builder: (BuildContext context,
-                  AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting ||
-                    !snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return const SizedBox.shrink();
-                } else {
-                  double totalAmount = calculateTotal(snapshot.data!);
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Center(
-                      child: Text(
-                        'Total Amount: $totalAmount',
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                      ),
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
+          ),
+          const ExpenseGraphPage(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: selectedIndex == 0 ? historyTabColor : graphTabColor,
+        selectedIconTheme: IconThemeData(
+          color: selectedIndex == 0 ? historyTabColor : graphTabColor,
         ),
+        unselectedIconTheme: const IconThemeData(
+          color: Colors.deepOrangeAccent,
+        ),
+        unselectedItemColor: Colors.deepOrangeAccent,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history),
+            label: 'History',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.graphic_eq),
+            label: 'Graph',
+          ),
+        ],
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          _tabController.animateTo(index);
+          setState(() {
+            selectedIndex = index;
+          });
+        },
       ),
     );
   }

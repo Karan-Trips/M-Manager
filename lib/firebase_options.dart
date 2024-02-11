@@ -66,6 +66,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '379977880468',
     projectId: 'money-manager-d20bf',
     storageBucket: 'money-manager-d20bf.appspot.com',
+    androidClientId:
+        '379977880468-gnnj74oecilgfn0rffovltbh4ld8rnib.apps.googleusercontent.com',
+    iosClientId:
+        '379977880468-k8pdg4fkdt6jogb9ernnel73cdaedkr1.apps.googleusercontent.com',
     iosBundleId: 'com.example.try1',
   );
 
@@ -75,6 +79,10 @@ class DefaultFirebaseOptions {
     messagingSenderId: '379977880468',
     projectId: 'money-manager-d20bf',
     storageBucket: 'money-manager-d20bf.appspot.com',
+    androidClientId:
+        '379977880468-gnnj74oecilgfn0rffovltbh4ld8rnib.apps.googleusercontent.com',
+    iosClientId:
+        '379977880468-ouq8sj5egi5fslt383jm858a2k6mljaf.apps.googleusercontent.com',
     iosBundleId: 'com.example.try1.RunnerTests',
   );
 }
