@@ -266,11 +266,12 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     ),
                     TextFormField(
                       decoration: InputDecoration(
+                        hintText: "Enter the Income",
                         border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(50)),
                         ),
                         hintStyle: TextStyle(
-                          color: isDarkMode ? Colors.white70 : Colors.black54,
+                          color: isDarkMode ? Colors.white : Colors.black,
                         ),
                       ),
                       controller: _incomeController,
@@ -280,12 +281,20 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       height: 20,
                     ),
                     ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            side:
+                                const BorderSide(width: 3, color: Colors.brown),
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30)),
+                            padding: const EdgeInsets.all(20)),
                         onPressed: () {
                           updateIncomeValue();
                           print("saved");
                           setState(() {});
                         },
-                        child: const Icon(Icons.account_balance_wallet))
+                        child: const Icon(Icons.account_balance_wallet_rounded))
                   ],
                 ),
             ],

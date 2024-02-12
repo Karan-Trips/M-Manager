@@ -1,4 +1,6 @@
 // ignore_for_file: avoid_print
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:try1/firebase_options.dart';
@@ -43,79 +45,111 @@ class MoneyManagerHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Money Manager'),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        actions: [
-          IconButton(
-            icon: Icon(
-              ThemeProvider.themeOf(context).id == 'light_theme'
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-            ),
-            onPressed: () {
-              ThemeProvider.controllerOf(context).nextTheme();
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(
-              height: 70,
-              width: 250,
-              child: ElevatedButton(
+    void exitApp() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Exit'),
+            content: const Text('Are you sure you want to Exit !'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AddExpensePage()),
-                  );
+                  Navigator.of(context).pop();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                  shadowColor: Colors.blueAccent,
-                ),
-                child: const Text(
-                  'Add Transaction',
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
+              ),
+              TextButton(
+                onPressed: () {
+                  exit(0);
+                },
+                child: const Text('Exit'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        exitApp();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Money Manager'),
+          centerTitle: true,
+          backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+          actions: [
+            IconButton(
+              icon: Icon(
+                ThemeProvider.themeOf(context).id == 'light_theme'
+                    ? Icons.brightness_4_outlined
+                    : Icons.brightness_medium_outlined,
+              ),
+              onPressed: () {
+                ThemeProvider.controllerOf(context).nextTheme();
+              },
+            ),
+          ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                height: 70,
+                width: 250,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AddExpensePage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                    shadowColor: Colors.blueAccent,
+                  ),
+                  child: const Text(
+                    'Add Transaction',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 50,
-            ),
-            SizedBox(
-              height: 70,
-              width: 250,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to ExpenseSummaryPage
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ExpenseSummaryPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text(
-                  'Expense Summary',
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              const SizedBox(
+                height: 50,
+              ),
+              SizedBox(
+                height: 70,
+                width: 250,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Navigate to ExpenseSummaryPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ExpenseSummaryPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'Expense Summary',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
