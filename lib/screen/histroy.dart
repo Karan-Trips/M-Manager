@@ -17,6 +17,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
   late Future<List<Map<String, dynamic>>> _expenseData;
   double currentIncome = 0.0;
   bool showDetails = false;
+  bool iconChange = false;
   late TabController _tabController;
   int selectedIndex = 0;
 
@@ -59,9 +60,12 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
     }
   }
 
-  Future<List<Map<String, dynamic>>> fetchExpenseData() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection('expenses').get();
+  Future<List<Map<String, dynamic>>> fetchExpenseData(
+      {bool sortByDate = false}) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('expenses')
+        .orderBy('date', descending: sortByDate)
+        .get();
 
     return querySnapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -108,7 +112,8 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
         actions: [
           IconButton(
             onPressed: () {
-              // todo :add sorting
+              _expenseData = fetchExpenseData(sortByDate: true);
+
               print("sort");
             },
             icon: const Icon(Icons.sort_sharp),
@@ -225,40 +230,52 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                         onTap: () {
                           setState(() {
                             showDetails = !showDetails;
+                            iconChange;
                           });
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Column(
-                            children: [
-                              Center(
-                                child: Text(
-                                  'Total Amount: $totalAmount',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  ),
+                        child: SizedBox(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Spacer(),
+                                    Text(
+                                      'Total Amount: $totalAmount',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    IconButton(
+                                        onPressed: () {},
+                                        icon: Icon(iconChange
+                                            ? Icons.arrow_drop_up_sharp
+                                            : Icons.arrow_drop_down_rounded)),
+                                  ],
                                 ),
-                              ),
-                              if (showDetails) ...[
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Current Income: $currentIncome',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                if (showDetails) ...[
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'Current Income: $currentIncome',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Balance Left: $leftBalance',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    'Balance Left: $leftBalance',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                         ),
                       );

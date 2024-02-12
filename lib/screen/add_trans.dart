@@ -29,9 +29,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   void dispose() {
+    super.dispose();
     _amountController.dispose();
     _incomeController.dispose();
-    super.dispose();
   }
 
   Future<void> saveExpenseData(double amount, String category) async {
@@ -83,10 +83,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
           // Add any additional fields you may have in your income document
         });
       } else {
-        // Document doesn't exist, create it
         createIncomeDocument(newIncomeValue);
       }
-
+      _incomeController.clear();
       print("Income value updated successfully: $newIncomeValue");
     } catch (error) {
       print("Failed to update income value: $error");
@@ -98,11 +97,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
       CollectionReference incomes =
           FirebaseFirestore.instance.collection('incomes');
       DocumentReference incomeDocument = incomes.doc('income_document');
-
-      // Create the income document
+      _incomeController.clear();
       await incomeDocument.set({
         'income': newIncomeValue,
-        // Add any additional fields you may have in your income document
       });
 
       print("Income document created successfully with value: $newIncomeValue");
@@ -266,7 +263,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     ),
                     TextFormField(
                       decoration: InputDecoration(
-                        hintText: "Enter the Income",
+                        labelText: "Enter the Income",
                         border: const OutlineInputBorder(
                           borderRadius: BorderRadius.all(Radius.circular(50)),
                         ),
