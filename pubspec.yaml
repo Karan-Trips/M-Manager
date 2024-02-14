@@ -40,6 +40,8 @@ dependencies:
   theme_provider: ^0.6.0
   firebase_auth: ^4.17.4
   fl_chart: ^0.66.2
+  fluttertoast: ^8.0.7
+  lottie: ^3.0.0
 
 flutter_icons:
   image_path: "images/logo.jpg"

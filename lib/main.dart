@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:try1/firebase_options.dart';
 import 'package:try1/screen/add_trans.dart';
 import 'package:try1/screen/histroy.dart';
@@ -94,62 +95,76 @@ class MoneyManagerHomePage extends StatelessWidget {
             ),
           ],
         ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                height: 70,
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const AddExpensePage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
-                    shadowColor: Colors.blueAccent,
-                  ),
-                  child: const Text(
-                    'Add Transaction',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              color: Colors.transparent,
+              height: 250,
+              child: Lottie.asset("images/money2.json"),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: 70,
+                    width: 250,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AddExpensePage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        shadowColor: Colors.blueAccent,
+                      ),
+                      child: const Text(
+                        'Add Transaction',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              SizedBox(
-                height: 70,
-                width: 250,
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to ExpenseSummaryPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ExpenseSummaryPage()),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.redAccent,
-                    foregroundColor: Colors.white,
+                  const SizedBox(
+                    height: 50,
                   ),
-                  child: const Text(
-                    'Expense Summary',
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  SizedBox(
+                    height: 70,
+                    width: 250,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Navigate to ExpenseSummaryPage
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ExpenseSummaryPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text(
+                        'Expense Summary',
+                        style: TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

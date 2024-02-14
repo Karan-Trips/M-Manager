@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/screen/graph.dart';
 
@@ -181,6 +182,8 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                                                 deleteExpense(snapshot
                                                     .data![index]['id']);
                                               });
+                                              showToast(
+                                                  "Transaction Deleted !");
                                               Navigator.of(context).pop();
                                             },
                                           ),
@@ -230,52 +233,50 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                         onTap: () {
                           setState(() {
                             showDetails = !showDetails;
-                            iconChange;
+                            iconChange = !iconChange;
                           });
                         },
-                        child: SizedBox(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    const Spacer(),
-                                    Text(
-                                      'Total Amount: $totalAmount',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    IconButton(
-                                        onPressed: () {},
-                                        icon: Icon(iconChange
-                                            ? Icons.arrow_drop_up_sharp
-                                            : Icons.arrow_drop_down_rounded)),
-                                  ],
-                                ),
-                                if (showDetails) ...[
-                                  const SizedBox(height: 10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  const Spacer(),
                                   Text(
-                                    'Current Income: $currentIncome',
+                                    'Total Amount: $totalAmount',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 18,
+                                      fontSize: 20,
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'Balance Left: $leftBalance',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(iconChange
+                                          ? Icons.arrow_drop_down_rounded
+                                          : Icons.arrow_drop_up_rounded)),
                                 ],
+                              ),
+                              if (showDetails) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Current Income: $currentIncome',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Balance Left: $leftBalance',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
                               ],
-                            ),
+                            ],
                           ),
                         ),
                       );
@@ -315,6 +316,18 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
           });
         },
       ),
+    );
+  }
+
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
     );
   }
 }

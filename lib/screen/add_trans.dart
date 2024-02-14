@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 class AddExpensePage extends StatefulWidget {
@@ -15,6 +16,8 @@ class AddExpensePage extends StatefulWidget {
 class _AddExpensePageState extends State<AddExpensePage> {
   late TextEditingController _amountController;
   late TextEditingController _incomeController;
+  final _formkey = GlobalKey<FormState>();
+  final _formkey2 = GlobalKey<FormState>();
   String _selectedCategory = 'Groceries';
   bool isDarkMode = false;
   bool showIncomeTextField = false;
@@ -131,17 +134,35 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 'Amount:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              TextFormField(
-                decoration: InputDecoration(
-                  labelText: 'Enter your Amount',
-                  border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(50))),
-                  hintStyle: TextStyle(
-                    color: isDarkMode ? Colors.white70 : Colors.black54,
+              Form(
+                key: _formkey,
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Enter your Amount',
+                    border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(50))),
+                    hintStyle: TextStyle(
+                      color: isDarkMode ? Colors.white70 : Colors.black54,
+                    ),
                   ),
+                  controller: _amountController,
+                  keyboardType: TextInputType.number,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  validator: (value) {
+                    if (value == null ||
+                        double.tryParse(value) == null ||
+                        double.parse(value) <= 0) {
+                      return 'Please enter an amount';
+                    } else if (value.length > 8) {
+                      return 'Amount is too large to handle';
+                    }
+                    double? amount = double.tryParse(value);
+                    if (amount != null && amount < 0) {
+                      return 'Amount cannot be below zero';
+                    }
+                    return null;
+                  },
                 ),
-                controller: _amountController,
-                keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 20),
               const Text(
@@ -219,11 +240,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     try {
                       parsedAmount = double.parse(amountText);
                     } catch (e) {
-                      dialogbox(context);
+                      showToast("Invalid input for amount");
                       return;
                     }
-                    saveExpenseData(parsedAmount, category);
-                    Navigator.pop(context);
+                    if (_formkey.currentState?.validate() ?? false) {
+                      saveExpenseData(parsedAmount, category);
+                      showToast("Transaction Saved !");
+                      Navigator.pop(context);
+                    } else {
+                      showToast("Please fill all fields");
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
@@ -261,18 +287,36 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    TextFormField(
-                      decoration: InputDecoration(
-                        labelText: "Enter the Income",
-                        border: const OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(50)),
+                    Form(
+                      key: _formkey2,
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: "Enter the Income",
+                          border: const OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                          ),
+                          hintStyle: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
                         ),
-                        hintStyle: TextStyle(
-                          color: isDarkMode ? Colors.white : Colors.black,
-                        ),
+                        controller: _incomeController,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null ||
+                              double.tryParse(value) == null ||
+                              double.parse(value) <= 0) {
+                            return 'Please enter an Income';
+                          } else if (value.length > 8) {
+                            return 'Amount is too large to handle';
+                          }
+                          double? amount = double.tryParse(value);
+                          if (amount != null && amount < 0) {
+                            return 'Amount cannot be below zero';
+                          }
+                          return null;
+                        },
                       ),
-                      controller: _incomeController,
-                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(
                       height: 20,
@@ -287,8 +331,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
                                 borderRadius: BorderRadius.circular(30)),
                             padding: const EdgeInsets.all(20)),
                         onPressed: () {
-                          updateIncomeValue();
-                          print("saved");
+                          if (_formkey2.currentState?.validate() ?? false) {
+                            updateIncomeValue();
+                            print("saved");
+                            Navigator.pop(context);
+                          } else {
+                            showToast("Enter  valid income");
+                          }
+
                           setState(() {});
                         },
                         child: const Icon(Icons.account_balance_wallet_rounded))
@@ -301,23 +351,15 @@ class _AddExpensePageState extends State<AddExpensePage> {
     );
   }
 
-  Future<dynamic> dialogbox(BuildContext context) {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error'),
-          content: const Text('Please enter a valid amount.'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
+  void showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
     );
   }
 }
