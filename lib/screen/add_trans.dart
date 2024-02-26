@@ -158,7 +158,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     }
                     double? amount = double.tryParse(value);
                     if (amount != null && amount < 0) {
-                      return 'Amount cannot be below zero';
+                      return 'Amount cannot be below zero or zero';
                     }
                     return null;
                   },

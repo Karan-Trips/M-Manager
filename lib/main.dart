@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 import 'package:try1/firebase_options.dart';
 import 'package:try1/screen/add_trans.dart';
@@ -17,7 +18,10 @@ void main() async {
   } catch (e) {
     print('Error initializing Firebase: $e');
   }
-  runApp(const MyMoneyManagerApp());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+      .then((_) {
+    runApp(const MyMoneyManagerApp());
+  });
 }
 
 class MyMoneyManagerApp extends StatelessWidget {
@@ -143,7 +147,6 @@ class MoneyManagerHomePage extends StatelessWidget {
                     width: 250,
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigate to ExpenseSummaryPage
                         Navigator.push(
                           context,
                           MaterialPageRoute(
