@@ -28,4 +28,4 @@ Stay on top of your finances and make better decisions with **Money Manager**!
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/money-manager.git
+  https://github.com/Karan-Trips/M-Manager.git
