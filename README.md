@@ -1,16 +1,31 @@
-# try1
+# Money Manager
 
-A new Flutter project.
+**Money Manager** is a simple yet powerful app designed to help you manage your finances effectively. Track your income and categorize your expenses effortlessly.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Add Income**: Easily log all your sources of income.
+- **Track Expenses**: Whenever you spend money, select the category that fits:
+  - Medical
+  - Food
+  - Fast Food
+  - Other
+  - Office
+  - Bike
+- **Financial Overview**: Get a clear breakdown of your expenses by category to understand where your money is going.
+- **User-friendly Interface**: Intuitive design for quick and easy financial management.
 
-A few resources to get you started if this is your first Flutter project:
+Stay on top of your finances and make better decisions with **Money Manager**!
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## How to Use
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Add your income by entering the amount and source.
+2. Whenever you spend money, choose a category (Medical, Food, etc.) to log the expense.
+3. View your spending breakdown by category to keep track of your financial health.
+
+## Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/money-manager.git
