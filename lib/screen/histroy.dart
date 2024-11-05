@@ -1,10 +1,9 @@
-// ignore_for_file: avoid_print, invalid_return_type_for_catch_error
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/screen/graph.dart';
+import '../firebase_store/expense_store.dart';
 
 class ExpenseSummaryPage extends StatefulWidget {
   const ExpenseSummaryPage({super.key});
@@ -15,95 +14,31 @@ class ExpenseSummaryPage extends StatefulWidget {
 
 class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
     with SingleTickerProviderStateMixin {
-  late Future<List<Map<String, dynamic>>> _expenseData;
-  double currentIncome = 0.0;
-  bool showDetails = false;
-  bool iconChange = false;
   late TabController _tabController;
   int selectedIndex = 0;
 
-  // Define colors for tabs
   Color historyTabColor = Colors.deepOrangeAccent;
   Color graphTabColor = Colors.green;
 
   @override
   void initState() {
     super.initState();
-    _expenseData = fetchExpenseData();
-    fetchCurrentIncome();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        selectedIndex = _tabController.index;
+      });
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      expenseStore.fetchExpenses();
+      expenseStore.fetchIncome();
+    });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  Future<void> fetchCurrentIncome() async {
-    try {
-      CollectionReference incomes =
-          FirebaseFirestore.instance.collection('incomes');
-
-      DocumentReference incomeDocument = incomes.doc('income_document');
-
-      DocumentSnapshot documentSnapshot = await incomeDocument.get();
-
-      if (documentSnapshot.exists) {
-        setState(() {
-          currentIncome =
-              (documentSnapshot.data() as Map<String, dynamic>)['income'] ??
-                  0.0;
-        });
-      }
-    } catch (error) {
-      print("Failed to fetch current income: $error");
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> fetchExpenseData(
-      {bool sortByDate = false}) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('expenses')
-        .orderBy('date', descending: sortByDate)
-        .get();
-
-    return querySnapshot.docs.map((doc) {
-      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-      data['id'] = doc.id;
-      return data;
-    }).toList();
-  }
-
-  double calculateTotal(List<Map<String, dynamic>> expenses) {
-    return expenses.fold(
-        0.0, (total, expense) => total + (expense['amount'] ?? 0.0));
-  }
-
-  double calculateLeftBalance(
-      double currentIncome, List<Map<String, dynamic>> expenses) {
-    double totalAmount = calculateTotal(expenses);
-    return currentIncome - totalAmount;
-  }
-
-  void deleteExpense(String documentId) {
-    FirebaseFirestore.instance
-        .collection('expenses')
-        .doc(documentId)
-        .delete()
-        .then((value) {
-      print('Expense deleted');
-
-      setState(() {
-        _expenseData = fetchExpenseData();
-      });
-    }).catchError((error) => print('Failed to delete expense: $error'));
-
-    // Change colors when deleting an expense
-    setState(() {
-      historyTabColor = Colors.blue; // Change color for "History" tab
-      graphTabColor = Colors.green; // Change color for "Graph" tab
-    });
   }
 
   @override
@@ -113,11 +48,10 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
         actions: [
           IconButton(
             onPressed: () {
-              _expenseData = fetchExpenseData(sortByDate: true);
-
-              print("sort");
+              expenseStore.fetchExpenses();
+              expenseStore.fetchIncome();
             },
-            icon: const Icon(Icons.sort_sharp),
+            icon: const Icon(Icons.replay_outlined),
           ),
         ],
         backgroundColor:
@@ -133,26 +67,22 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _expenseData,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    }
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No expenses found.'));
-                    }
-                    return Expanded(
-                      child: ListView.separated(
-                        shrinkWrap: true,
+                Expanded(
+                  child: Observer(
+                    builder: (_) {
+                      if (expenseStore.isLoading) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (expenseStore.expenses.isEmpty) {
+                        return const Center(child: Text('No expenses found.'));
+                      }
+                      return ListView.separated(
                         separatorBuilder: (BuildContext context, int index) =>
                             const Divider(),
-                        itemCount: snapshot.data!.length,
+                        itemCount: expenseStore.expenses.length,
                         itemBuilder: (BuildContext context, int index) {
+                          final expense = expenseStore.expenses[index];
+
                           return Card(
                             color: Theme.of(context).cardColor,
                             elevation: 5,
@@ -161,128 +91,30 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                               trailing: IconButton(
                                 icon: const Icon(Icons.delete),
                                 onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: const Text('Confirm Deletion'),
-                                        content: const Text(
-                                            'Are you sure you want to delete this?'),
-                                        actions: <Widget>[
-                                          TextButton(
-                                            child: const Text('Cancel'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          TextButton(
-                                            child: const Text('Delete'),
-                                            onPressed: () {
-                                              setState(() {
-                                                deleteExpense(snapshot
-                                                    .data![index]['id']);
-                                              });
-                                              showToast(
-                                                  "Transaction Deleted !");
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
+                                  _showDeleteConfirmationDialog(expense.id);
                                 },
                               ),
                               leading: Column(
                                 children: [
-                                  Text('${snapshot.data![index]['date']}'),
-                                  Text('${snapshot.data![index]['time']}'),
+                                  Text(expense.getFormattedDate()),
+                                  Text(expense.getFormattedTime()),
                                 ],
                               ),
                               title: Text(
-                                '${snapshot.data![index]['category']}',
+                                expense.category,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 15),
                               ),
-                              subtitle: Column(
-                                children: [
-                                  Text(
-                                      'Amount: ${snapshot.data![index]['amount']}'),
-                                ],
-                              ),
+                              subtitle: Text(
+                                  'Amount: ₹${expense.amount.toStringAsFixed(2)}'),
                             ),
                           );
                         },
-                      ),
-                    );
-                  },
-                ),
-                FutureBuilder<List<Map<String, dynamic>>>(
-                  future: _expenseData,
-                  builder: (BuildContext context,
-                      AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting ||
-                        !snapshot.hasData ||
-                        snapshot.data!.isEmpty) {
-                      return const SizedBox.shrink();
-                    } else {
-                      double totalAmount = calculateTotal(snapshot.data!);
-                      double leftBalance =
-                          calculateLeftBalance(currentIncome, snapshot.data!);
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            showDetails = !showDetails;
-                            iconChange = !iconChange;
-                          });
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  const Spacer(),
-                                  Text(
-                                    'Total Amount: $totalAmount',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  IconButton(
-                                      onPressed: () {},
-                                      icon: Icon(iconChange
-                                          ? Icons.arrow_drop_down_rounded
-                                          : Icons.arrow_drop_up_rounded)),
-                                ],
-                              ),
-                              if (showDetails) ...[
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Current Income: $currentIncome',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Balance Left: $leftBalance',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ),
                       );
-                    }
-                  },
+                    },
+                  ),
                 ),
+                _buildSummaryDetails(expenseStore),
               ],
             ),
           ),
@@ -291,14 +123,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: selectedIndex == 0 ? historyTabColor : graphTabColor,
-        selectedIconTheme: IconThemeData(
-          color: selectedIndex == 0 ? historyTabColor : graphTabColor,
-        ),
-        unselectedIconTheme: const IconThemeData(
-          color: Colors.deepOrangeAccent,
-        ),
-        unselectedItemColor: Colors.deepOrangeAccent,
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
             label: 'History',
@@ -319,6 +144,73 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
     );
   }
 
+  void _showDeleteConfirmationDialog(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: const Text('Are you sure you want to delete this?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                deleteExpense(id);
+                showToast("Transaction Deleted!");
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSummaryDetails(ExpenseStore expenseStore) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              const Spacer(),
+              Text(
+                'Total Amount: ₹${expenseStore.totalExpenses.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                ),
+              ),
+              const Spacer(),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Current Income: ₹${expenseStore.totalIncome.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Balance Left: ₹${expenseStore.leftBalance.toStringAsFixed(2)}',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void showToast(String message) {
     Fluttertoast.showToast(
       msg: message,
@@ -329,5 +221,16 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
       textColor: Colors.white,
       fontSize: 16.0,
     );
+  }
+
+  void deleteExpense(String id) async {
+    try {
+      await expenseStore.deleteExpense(id);
+      await expenseStore.fetchExpenses();
+      showToast("Expense Deleted!");
+    } catch (error) {
+      print("Error deleting expense: $error");
+      showToast("Error deleting expense");
+    }
   }
 }

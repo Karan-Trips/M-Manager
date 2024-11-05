@@ -2,7 +2,7 @@ name: try1
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+# publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -29,29 +29,48 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   cupertino_icons: ^1.0.2
-  firebase_core: ^2.24.2
-  cloud_firestore: ^4.14.0
+  firebase_core: ^3.6.0
+  cloud_firestore: ^5.4.4
   
   flutter:
     sdk: flutter
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.1
   intl: ^0.19.0
   provider: ^6.1.1
   theme_provider: ^0.6.0
-  firebase_auth: ^4.17.4
-  fl_chart: ^0.66.2
-  fluttertoast: ^8.0.7
+  firebase_auth: ^5.3.1
+  fl_chart: ^0.69.0
+  fluttertoast: ^8.2.8
   lottie: ^3.0.0
+  local_auth: ^2.3.0
+  mobx: ^2.3.3+2
+  mobx_codegen: ^2.6.1
+  flutter_mobx: ^2.2.1+1
+  google_fonts: ^6.2.1
+  uuid: ^4.5.1
+  hive_flutter: ^1.1.0
+  get_it: ^8.0.0
+  get: ^4.6.6
+  firebase_data_connect: ^0.1.2+1
+  firebase_messaging: ^15.1.3
+  firebase_analytics: ^11.3.3
+  flutter_local_notifications: ^17.2.4
+  firebase_crashlytics: ^4.1.3
+  overlay_support: ^2.1.0
+  auto_route: ^9.2.2
+  analyzer: ^6.7.0
+  getwidget: ^3.0.1
 
-flutter_icons:
-  image_path: "images/logo.jpg"
-  android: true
-  ios: true
 
 dev_dependencies:
-  flutter_lints: ^3.0.1
+  build_runner: ^2.4.13
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "images/logo.jpg"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -63,7 +82,7 @@ flutter:
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
-    - images/
+    - images/logo.jpg
   #   - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

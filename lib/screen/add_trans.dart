@@ -1,10 +1,12 @@
-// ignore_for_file: avoid_print, library_private_types_in_public_api
-import 'dart:math';
+// ignore_for_file: avoid_print, library_private_types_in_public_api, use_build_context_synchronously
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+
+import 'package:intl/intl.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:try1/firebase_store/expense_store.dart';
+import 'package:try1/utils/model.dart';
 
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
@@ -16,12 +18,10 @@ class AddExpensePage extends StatefulWidget {
 class _AddExpensePageState extends State<AddExpensePage> {
   late TextEditingController _amountController;
   late TextEditingController _incomeController;
-  final _formkey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final _formkey2 = GlobalKey<FormState>();
   String _selectedCategory = 'Groceries';
-  bool isDarkMode = false;
   bool showIncomeTextField = false;
-  late double currentIncome = 0.0;
 
   @override
   void initState() {
@@ -32,88 +32,42 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   @override
   void dispose() {
-    super.dispose();
     _amountController.dispose();
     _incomeController.dispose();
+    super.dispose();
   }
 
-  Future<void> saveExpenseData(double amount, String category) async {
-    try {
-      var id = Random().nextInt(1000);
-      var currentDate = getCurrentDate();
-      var currentTime = getCurrentTime();
+  Future<void> _saveExpenseData(double amount, String category) async {
+    String expenseId =
+        FirebaseFirestore.instance.collection('expenses').doc().id;
+    final expense = Expense(
+      id: expenseId,
+      date: DateTime.now(),
+      category: category,
+      amount: amount,
+      time: DateFormat('HH:mm').format(DateTime.now()),
+    );
 
-      CollectionReference expenses =
-          FirebaseFirestore.instance.collection('expenses');
-      double incomeValue = double.tryParse(_incomeController.text) ?? 0.0;
-      await expenses.add({
-        'id': id,
-        'date': currentDate,
-        'time': currentTime,
-        'amount': amount,
-        'income': incomeValue,
-        'category': category,
-      });
-
-      print("Expense added");
-    } catch (error) {
-      print("Failed to add expense: $error");
-    }
+    await expenseStore.addExpense(expense);
+    showToast("Transaction Saved !");
+    Navigator.pop(context);
   }
 
-  String getCurrentDate() {
-    return DateFormat('dd-MM-yyyy').format(DateTime.now());
-  }
-
-  String getCurrentTime() {
-    return DateFormat('HH:mm:ss').format(DateTime.now());
-  }
-
-  void updateIncomeValue() async {
-    try {
-      double newIncomeValue = double.tryParse(_incomeController.text) ?? 0.0;
-      CollectionReference incomes =
-          FirebaseFirestore.instance.collection('incomes');
-
-      DocumentReference incomeDocument = incomes.doc('income_document');
-
-      // Check if the document exists before updating
-      DocumentSnapshot documentSnapshot = await incomeDocument.get();
-
-      if (documentSnapshot.exists) {
-        await incomeDocument.update({
-          'income': newIncomeValue,
-          // Add any additional fields you may have in your income document
-        });
-      } else {
-        createIncomeDocument(newIncomeValue);
-      }
+  void _updateIncomeValue() {
+    double newIncomeValue = double.tryParse(_incomeController.text) ?? 0.0;
+    if (newIncomeValue > 0) {
+      print('New income value: $newIncomeValue');
+      expenseStore.updateIncome(newIncomeValue);
       _incomeController.clear();
-      print("Income value updated successfully: $newIncomeValue");
-    } catch (error) {
-      print("Failed to update income value: $error");
-    }
-  }
-
-  void createIncomeDocument(double newIncomeValue) async {
-    try {
-      CollectionReference incomes =
-          FirebaseFirestore.instance.collection('incomes');
-      DocumentReference incomeDocument = incomes.doc('income_document');
-      _incomeController.clear();
-      await incomeDocument.set({
-        'income': newIncomeValue,
-      });
-
-      print("Income document created successfully with value: $newIncomeValue");
-    } catch (error) {
-      print("Failed to create income document: $error");
+      showToast("Income value updated successfully");
+    } else {
+      showToast("Please enter a valid income amount.");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    isDarkMode =
+    final isDarkMode =
         ThemeProvider.themeOf(context).data.brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
@@ -135,7 +89,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               Form(
-                key: _formkey,
+                key: _formKey,
                 child: TextFormField(
                   decoration: InputDecoration(
                     labelText: 'Enter your Amount',
@@ -243,10 +197,9 @@ class _AddExpensePageState extends State<AddExpensePage> {
                       showToast("Invalid input for amount");
                       return;
                     }
-                    if (_formkey.currentState?.validate() ?? false) {
-                      saveExpenseData(parsedAmount, category);
+                    if (_formKey.currentState?.validate() ?? false) {
+                      _saveExpenseData(parsedAmount, category);
                       showToast("Transaction Saved !");
-                      Navigator.pop(context);
                     } else {
                       showToast("Please fill all fields");
                     }
@@ -332,14 +285,13 @@ class _AddExpensePageState extends State<AddExpensePage> {
                             padding: const EdgeInsets.all(20)),
                         onPressed: () {
                           if (_formkey2.currentState?.validate() ?? false) {
-                            updateIncomeValue();
+                            _updateIncomeValue();
                             print("saved");
+                            showToast("Income Saved !");
                             Navigator.pop(context);
                           } else {
-                            showToast("Enter  valid income");
+                            showToast("Enter valid income");
                           }
-
-                          setState(() {});
                         },
                         child: const Icon(Icons.account_balance_wallet_rounded))
                   ],

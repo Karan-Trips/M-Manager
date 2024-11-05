@@ -1,12 +1,12 @@
 buildscript {
-    ext.kotlin_version = '1.7.10'
     repositories {
         google()
         mavenCentral()
     }
-
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        // This is required to enable the Google Services plugin
+        classpath 'com.android.tools.build:gradle:8.1.1'
+        classpath 'com.google.gms:google-services:4.3.14' 
     }
 }
 
@@ -17,14 +17,16 @@ allprojects {
     }
 }
 
-rootProject.buildDir = '../build'
+// This sets the build directory for the root and subprojects
+rootProject.buildDir = "../build"
 subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 subprojects {
-    project.evaluationDependsOn(':app')
+    project.evaluationDependsOn(":app")
 }
 
+// Clean task to delete the build directory
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
