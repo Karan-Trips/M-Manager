@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:try1/utils/model.dart';
@@ -16,6 +19,9 @@ class ExpenseGraphPage extends StatefulWidget {
 class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
   bool isDarkMode = false;
   int? touchedIndex;
+  double? totalAmount;
+  double? perAmount;
+  List<String> image = [];
 
   @override
   void initState() {
@@ -32,7 +38,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
       body: Observer(
         builder: (context) {
           if (expenseStore.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: Lottie.asset('images/loading.json'));
           }
           List<Expense> documents = expenseStore.expenses;
           if (documents.isEmpty) {
@@ -63,25 +69,26 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
 
           categoryToAmount.forEach((category, amount) {
             int count = categoryToCount[category] ?? 0;
+            perAmount = amount;
 
             if (count > 0) {
               final isTouched = index == touchedIndex;
-              final double radius = isTouched ? 130.0 : 100.0;
+              final double radius = isTouched ? 90.0 : 80.0;
 
               pieChartSections.add(
                 PieChartSectionData(
-                  title: category,
+                  title: '${calculatePercentage(amount)}%',
                   value: amount,
                   color: Colors.primaries[index % Colors.primaries.length],
                   radius: radius,
                   titleStyle: TextStyle(
-                    color: isDarkMode ? Colors.white : Colors.black,
-                    fontSize: 16,
+                    color: isDarkMode ? Colors.black : Colors.white,
+                    fontSize: 13.spMax,
                     fontWeight: isTouched ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               );
-
+              image.add(category);
               legendTitles.add(
                 '$category: ₹${amount.toStringAsFixed(2)} ($count entries)',
               );
@@ -92,82 +99,103 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
           return Column(
             children: [
               Expanded(
-                child: PieChart(
-                  PieChartData(
-                    sections: pieChartSections,
-                    borderData: FlBorderData(show: false),
-                    centerSpaceRadius: 40,
-                    sectionsSpace: 0,
-                    pieTouchData: PieTouchData(
-                      touchCallback:
-                          (FlTouchEvent event, PieTouchResponse? response) {
-                        if (!event.isInterestedForInteractions ||
-                            response?.touchedSection == null) {
-                          setState(() {
-                            touchedIndex = -1;
-                          });
-                          return;
-                        }
-                        setState(() {
-                          touchedIndex =
-                              response!.touchedSection!.touchedSectionIndex;
-                          final touchedCategory =
-                              categoryToAmount.keys.toList()[touchedIndex!];
-                          final touchedAmount =
-                              categoryToAmount[touchedCategory] ?? 0;
-                          final touchedCount =
-                              categoryToCount[touchedCategory] ?? 0;
+                child: Stack(
+                  children: [
+                    PieChart(
+                      PieChartData(
+                        sections: pieChartSections,
+                        titleSunbeamLayout: true,
+                        borderData: FlBorderData(
+                            show: false,
+                            border: Border.all(color: Colors.black, width: 2)),
+                        centerSpaceRadius: 90,
+                        sectionsSpace: 0,
+                        pieTouchData: PieTouchData(
+                          touchCallback:
+                              (FlTouchEvent event, PieTouchResponse? response) {
+                            if (!event.isInterestedForInteractions ||
+                                response?.touchedSection == null) {
+                              setState(() {
+                                touchedIndex = -1;
+                              });
+                              return;
+                            }
+                            setState(() {
+                              touchedIndex =
+                                  response!.touchedSection!.touchedSectionIndex;
+                              final touchedCategory = categoryToAmount.keys
+                                  .toList()[touchedIndex ?? 0];
+                              final touchedAmount =
+                                  categoryToAmount[touchedCategory] ?? 0;
+                              final touchedCount =
+                                  categoryToCount[touchedCategory] ?? 0;
 
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text(touchedCategory),
-                                content: Text(
-                                  'Total Amount: ₹${touchedAmount.toStringAsFixed(2)}\n'
-                                  'Entries: $touchedCount',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('Close'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text(touchedCategory),
+                                    content: Text(
+                                      'Total Amount: ₹${touchedAmount.toStringAsFixed(2)}\n'
+                                      'Entries: $touchedCount',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('Close'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
                               );
-                            },
-                          );
-                        });
-                      },
-                      enabled: true,
+                            });
+                          },
+                          enabled: true,
+                        ),
+                      ),
                     ),
-                  ),
+                    Center(
+                      child: Text(
+                        '${calculatePercenategeTotal()}% of Income',
+                        style: TextStyle(
+                          fontSize: 16.spMax,
+                          color: isDarkMode ? Colors.black : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.only(top: 20),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: legendTitles
-                      .map(
-                        (title) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            title,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
+              Expanded(
+                child: ListView.separated(
+                  padding: EdgeInsets.all(20.w),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        SvgPicture.asset(
+                          height: 40.h,
+                          imageSelect(image[index]),
+                        ),
+                        Text(
+                          legendTitles[index],
+                          style: TextStyle(
+                            fontSize: 14.spMax,
+                            color: isDarkMode ? Colors.black : Colors.white,
                           ),
                         ),
-                      )
-                      .toList(),
+                        CircleAvatar(
+                          backgroundColor: pieChartSections[index].color,
+                          radius: 10,
+                        )
+                      ],
+                    );
+                  },
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemCount: legendTitles.length,
                 ),
               ),
             ],
@@ -175,5 +203,42 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
         },
       ),
     );
+  }
+
+  String imageSelect(String type) {
+    switch (type) {
+      case 'Fast-Food':
+        return 'images/svgs/fastfood.svg';
+      case 'Grocery':
+        return 'images/svgs/grocory.svg';
+      case 'Medicine':
+        return 'images/svgs/medical.svg';
+      case 'Office':
+        return 'images/svgs/office.svg';
+      case 'Ghumne':
+        return 'images/svgs/travel.svg';
+      case 'Other':
+        return 'images/svgs/emi.svg';
+      case 'Food':
+        return 'images/svgs/fastfood.svg';
+      default:
+        return 'images/svgs/emi.svg';
+    }
+  }
+
+  String calculatePercentage(double amount) {
+    final totalAmount = expenseStore.totalExpenses;
+    final percentage = (amount / totalAmount) * 100;
+    return percentage.toStringAsFixed(1);
+  }
+
+  int calculatePercenategeTotal() {
+    final totalAmount = expenseStore.totalExpenses;
+    final totalIncome = expenseStore.totalIncome;
+    final percentage = (totalAmount / totalIncome) * 100;
+    if (percentage > 0) {
+      return percentage.toInt();
+    }
+    return percentage.toInt();
   }
 }

@@ -4,6 +4,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:try1/Widgets_screen/loading_screen.dart';
 
 import 'package:try1/auth/login_screen.dart';
 import 'package:try1/utils/design_container.dart';
@@ -21,6 +22,7 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
+  ValueNotifier<bool> isLoading = ValueNotifier(false);
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   Future<bool> _validate() async {
@@ -40,6 +42,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
   Future<void> _signup() async {
     if (_formKey.currentState!.validate()) {
+      isLoading.value = true;
       try {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
@@ -47,8 +50,10 @@ class _SignUpPageState extends State<SignUpPage> {
         );
         await FirebaseAuth.instance.currentUser
             ?.updateDisplayName(_usernameController.text.trim());
+        isLoading.value = false;
         Navigator.of(context).pop();
       } catch (error) {
+        isLoading.value = false;
         print('Signup failed: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Signup failed: $error')),
@@ -183,44 +188,51 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: SizedBox(
-          height: height,
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                top: -MediaQuery.of(context).size.height * .15,
-                right: -MediaQuery.of(context).size.width * .4,
-                child: const BezierContainer(),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
+      body: ValueListenableBuilder<bool>(
+          valueListenable: isLoading,
+          builder: (context, value, child) {
+            return Loading(
+              status: value,
+              child: Form(
+                key: _formKey,
+                child: SizedBox(
+                  height: height,
+                  child: Stack(
                     children: <Widget>[
-                      SizedBox(height: height * .2),
-                      _title(),
-                      const SizedBox(
-                        height: 50,
+                      Positioned(
+                        top: -MediaQuery.of(context).size.height * .15,
+                        right: -MediaQuery.of(context).size.width * .4,
+                        child: const BezierContainer(),
                       ),
-                      _emailPasswordWidget(),
-                      const SizedBox(
-                        height: 20,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              SizedBox(height: height * .2),
+                              _title(),
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              _emailPasswordWidget(),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              _submitButton(),
+                              SizedBox(height: height * .14),
+                              _loginAccountLabel(),
+                            ],
+                          ),
+                        ),
                       ),
-                      _submitButton(),
-                      SizedBox(height: height * .14),
-                      _loginAccountLabel(),
                     ],
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            );
+          }),
     );
   }
 }

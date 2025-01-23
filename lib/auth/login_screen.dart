@@ -5,6 +5,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:try1/Widgets_screen/loading_screen.dart';
 
 import 'package:try1/auth/sign_up_page.dart';
 import 'package:try1/firebase_store/expense_store.dart';
@@ -27,13 +28,11 @@ class _LoginPageState extends State<LoginPage> {
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   ValueNotifier<bool> _isPasswordVisible = ValueNotifier<bool>(false);
   Future<bool> validate() async {
-    // Check if the email is empty
     if (_emailController.text.isEmpty) {
       showMessageTop(context, "Enter Email Address");
       return false;
     }
 
-    // Check if the email format is valid
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(_emailController.text)) {
       showMessageTop(context, "Enter a valid email address.");
       return false;
@@ -122,15 +121,16 @@ class _LoginPageState extends State<LoginPage> {
           ValueListenableBuilder(
             valueListenable: _isPasswordVisible,
             builder: (context, value, child) => TextFormField(
+              style: TextStyle(color: Colors.red[900]),
               controller: controller,
               obscureText: isPassword && !_isPasswordVisible.value,
               decoration: InputDecoration(
                 hintText:
                     isPassword ? 'Enter your password' : 'Enter your email',
-                hintStyle: const TextStyle(color: Colors.grey),
+                hintStyle: const TextStyle(color: Colors.grey, fontSize: 15),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
-                  borderSide: const BorderSide(color: Colors.blue),
+                  borderSide: const BorderSide(color: Colors.grey),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
@@ -159,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
                 fillColor: const Color(0xfff3f3f4),
                 filled: true,
                 contentPadding:
-                    const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 23),
               ),
             ),
           ),
@@ -296,24 +296,12 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return Stack(
-      children: [
-        ValueListenableBuilder<bool>(
-          valueListenable: isLoading,
-          builder: (context, loading, child) {
-            if (loading) {
-              return Container(
-                color: Colors.black54,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        ),
-        Scaffold(
-            body: Form(
+    return Scaffold(
+        body: ValueListenableBuilder<bool>(
+      valueListenable: isLoading,
+      builder: (context, value, child) => Loading(
+        status: value,
+        child: Form(
           key: _formKey,
           child: SizedBox(
             height: height,
@@ -349,11 +337,11 @@ class _LoginPageState extends State<LoginPage> {
                                   fontSize: 14, fontWeight: FontWeight.w500)),
                         ),
                         _divider(),
-                        const SizedBox(height: 20),
-                        _submitButton(
-                            'SignUp',
-                            () => Navigator.of(context).push(MaterialPageRoute(
-                                builder: (_) => const SignUpPage()))),
+                        // const SizedBox(height: 20),
+                        // _submitButton(
+                        //     'SignUp',
+                        //     () => Navigator.of(context).push(MaterialPageRoute(
+                        //         builder: (_) => const SignUpPage()))),
                         _createAccountLabel(),
                       ],
                     ),
@@ -362,8 +350,8 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
-        )),
-      ],
-    );
+        ),
+      ),
+    ));
   }
 }

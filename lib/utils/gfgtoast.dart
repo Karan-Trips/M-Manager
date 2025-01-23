@@ -150,8 +150,7 @@ class ToastView {
 
 class ToastCard extends StatefulWidget {
   const ToastCard(this.child, this.duration,
-      {Key? key, this.fadeDuration = 500})
-      : super(key: key);
+      {super.key, this.fadeDuration = 500});
 
   final Widget child;
   final Duration duration;
