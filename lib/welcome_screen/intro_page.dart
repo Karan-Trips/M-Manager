@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try1/app_db.dart';
 
 import 'package:try1/main.dart';
 
@@ -39,8 +40,9 @@ class _IntroPageState extends State<IntroPage> {
       setState(() {
         _currentPage++;
       });
+      print(_currentPage);
     } else {
-      // Navigate or initialize the app
+      appDb.isFirstTime = false;
       final expenseStore = ExpenseStore();
       final user = FirebaseAuth.instance.currentUser;
       Navigator.pushReplacement(

@@ -6,8 +6,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/Widgets_screen/adavance_calcander.dart';
+import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/screen/graph.dart';
-import '../firebase_store/expense_store.dart';
+import 'package:try1/utils/model.dart';
 
 class ExpenseSummaryPage extends StatefulWidget {
   const ExpenseSummaryPage({super.key});
@@ -20,15 +21,27 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   int selectedIndex = 0;
-  DatePickerEntryMode? _currentDate;
+
+  DateTime _selectedDate = DateTime.now();
+  ValueNotifier<bool> isShowingDatePicker = ValueNotifier(false);
   Color historyTabColor = Colors.deepOrangeAccent;
   Color graphTabColor = Colors.green;
+  List<Expense> _filteredExpenses = [];
+
+  void _filterExpenses() {
+    _filteredExpenses = expenseStore.expenses.where((expense) {
+      final expenseDate = expense.date;
+      return expenseDate.year == _selectedDate.year &&
+          expenseDate.month == _selectedDate.month &&
+          expenseDate.day == _selectedDate.day;
+    }).toList();
+  }
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-
+    _filterExpenses();
     _tabController.addListener(() {
       setState(() {
         selectedIndex = _tabController.index;
@@ -260,96 +273,111 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                       SizedBox(height: 12.h),
                       Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: GestureDetector(
-                            onTap: () {
-                              showDialog(
-                                builder: (context) => DatePickerDialog(
-                                    onDatePickerModeChange: (value) {
-                                      setState(() {
-                                        _currentDate = value;
-                                        print('$_currentDate');
-                                      });
-                                    },
-                                    initialCalendarMode: DatePickerMode.day,
-                                    initialDate: DateTime.now(),
-                                    firstDate: DateTime(2025),
-                                    lastDate: DateTime.now()),
-                                context: context,
-                                useSafeArea: true,
-                                barrierDismissible: true,
-                              );
-                            },
-                            child: Row(
-                              children: [
-                                Text(
-                                  "Transactions",
-                                  style: TextStyle(fontSize: 20.sp),
-                                ),
-                                const Spacer(),
-                                Padding(
-                                  padding:
-                                      EdgeInsets.symmetric(horizontal: 10.w),
-                                  child: Icon(
-                                    Icons.date_range,
-                                    size: 22.spMax,
+                          child: Row(
+                            children: [
+                              Text(
+                                "Transactions",
+                                style: TextStyle(fontSize: 20.sp),
+                              ),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  isShowingDatePicker.value =
+                                      !isShowingDatePicker.value;
+                                },
+                                child: ValueListenableBuilder(
+                                  valueListenable: isShowingDatePicker,
+                                  builder: (context, value, child) => Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10.w),
+                                    child: Icon(
+                                      isShowingDatePicker.value
+                                          ? Icons.view_comfy_alt_outlined
+                                          : Icons.view_compact_alt_outlined,
+                                      size: 22.spMax,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
-                                  style: TextStyle(fontSize: 15.spMax),
-                                ),
-                              ],
-                            ),
-                          )),
-                      SizedBox(height: 15.h),
-                      AdvancedCalendar(),
-                      ListView.separated(
-                        shrinkWrap: true,
-                        separatorBuilder: (BuildContext context, int index) =>
-                            const Divider(),
-                        itemCount: expenseStore.expenses.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          final expense = expenseStore.expenses[index];
-
-                          return Dismissible(
-                            direction: DismissDirection.endToStart,
-                            onDismissed: (direction) =>
-                                deleteExpense(expense.id),
-                            background: slideLeftBackground(),
-                            key: Key(expense.id),
-                            child: Bounceable(
-                              onTap: () {},
-                              child: Card(
-                                color: Theme.of(context).cardColor,
-                                elevation: 5,
-                                child: ListTile(
-                                  isThreeLine: true,
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () {
-                                      _showDeleteConfirmationDialog(expense.id);
-                                    },
-                                  ),
-                                  leading: Column(
-                                    children: [
-                                      Text(expense.getFormattedDate()),
-                                      Text(expense.getFormattedTime()),
-                                    ],
-                                  ),
-                                  title: Text(
-                                    expense.category,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15),
-                                  ),
-                                  subtitle: Text(
-                                      'Amount: ₹${expense.amount.toStringAsFixed(2)}'),
                                 ),
                               ),
-                            ),
-                          );
-                        },
+                            ],
+                          )),
+                      SizedBox(height: 10.h),
+                      ValueListenableBuilder(
+                        valueListenable: isShowingDatePicker,
+                        builder: (context, value, child) => Visibility(
+                          visible: value,
+                          child: AdvancedCalendar(
+                            onDateSelected: (selectedDate) {
+                              setState(() {
+                                _selectedDate = selectedDate;
+                                _filterExpenses();
+                              });
+                            },
+                          ),
+                        ),
                       ),
+                      SizedBox(height: 20.h),
+                      // isShowingDatePicker.value?
+                      _filteredExpenses.isEmpty
+                          ? Center(
+                              child: Text(
+                                  'No expenses available for the selected date',
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.grey)),
+                            )
+                          : Expanded(
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                separatorBuilder:
+                                    (BuildContext context, int index) =>
+                                        const Divider(),
+                                itemCount: isShowingDatePicker.value
+                                    ? _filteredExpenses.length
+                                    : expenseStore.expenses.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  final expense = expenseStore.expenses[index];
+
+                                  return Dismissible(
+                                    direction: DismissDirection.endToStart,
+                                    onDismissed: (direction) =>
+                                        deleteExpense(expense.id),
+                                    background: slideLeftBackground(),
+                                    key: Key(expense.id),
+                                    child: Bounceable(
+                                      onTap: () {},
+                                      child: Card(
+                                        color: Theme.of(context).cardColor,
+                                        elevation: 5,
+                                        child: ListTile(
+                                          isThreeLine: true,
+                                          trailing: IconButton(
+                                            icon: const Icon(Icons.delete),
+                                            onPressed: () {
+                                              _showDeleteConfirmationDialog(
+                                                  expense.id);
+                                            },
+                                          ),
+                                          leading: Column(
+                                            children: [
+                                              Text(expense.getFormattedDate()),
+                                              Text(expense.getFormattedTime()),
+                                            ],
+                                          ),
+                                          title: Text(
+                                            expense.category,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 15),
+                                          ),
+                                          subtitle: Text(
+                                              'Amount: ₹${expense.amount.toStringAsFixed(2)}'),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
                     ],
                   );
                 },

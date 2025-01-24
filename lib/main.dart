@@ -81,9 +81,11 @@ class MyMoneyManagerApp extends StatelessWidget {
           builder: (context, child) => child!,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            home: IntroPage(),
-
-            // user != null ? const MoneyManagerHomePage() : const LoginPage(),
+            home: user != null
+                ? const MoneyManagerHomePage()
+                : appDb.isFirstTime
+                    ? const IntroPage()
+                    : LoginPage(),
             theme: isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
           ),
         );
@@ -166,6 +168,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
               TextButton(
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
+                  appDb.isLogin = false;
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const LoginPage()),

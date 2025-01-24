@@ -209,7 +209,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
     switch (type) {
       case 'Fast-Food':
         return 'images/svgs/fastfood.svg';
-      case 'Grocery':
+      case 'Groceries':
         return 'images/svgs/grocory.svg';
       case 'Medicine':
         return 'images/svgs/medical.svg';

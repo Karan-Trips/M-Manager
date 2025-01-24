@@ -1,12 +1,13 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 class AdvancedCalendar extends StatefulWidget {
-  const AdvancedCalendar({super.key});
+  final Function(DateTime) onDateSelected;
+
+  const AdvancedCalendar({super.key, required this.onDateSelected});
 
   @override
   _AdvancedCalendarState createState() => _AdvancedCalendarState();
@@ -15,6 +16,7 @@ class AdvancedCalendar extends StatefulWidget {
 class _AdvancedCalendarState extends State<AdvancedCalendar> {
   DateTime _selectedDate = DateTime.now();
   DateTime _currentDate = DateTime.now();
+  final ScrollController _scrollController = ScrollController();
 
   List<DateTime> _generateDaysInMonth(DateTime month) {
     final firstDayOfMonth = DateTime(month.year, month.month, 1);
@@ -25,6 +27,22 @@ class _AdvancedCalendarState extends State<AdvancedCalendar> {
       daysInMonth,
       (index) => DateTime(month.year, month.month, index + 1),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final indexOfCurrentDate = _generateDaysInMonth(_currentDate)
+          .indexWhere((day) => day.day == _currentDate.day);
+      if (indexOfCurrentDate != -1) {
+        _scrollController.animateTo(
+          (indexOfCurrentDate * 95.0) - (MediaQuery.of(context).size.width / 2),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
   }
 
   @override
@@ -47,17 +65,8 @@ class _AdvancedCalendarState extends State<AdvancedCalendar> {
               },
             ),
             GestureDetector(
-              onTap: () {
-                showDialog(
-                  builder: (context) => DatePickerDialog(
-                      initialCalendarMode: DatePickerMode.day,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2025),
-                      lastDate: DateTime.now()),
-                  context: context,
-                  useSafeArea: true,
-                  barrierDismissible: true,
-                );
+              onTap: () async {
+                _selectDate(context);
               },
               child: Text(
                 DateFormat.yMMMM().format(_currentDate),
@@ -78,66 +87,70 @@ class _AdvancedCalendarState extends State<AdvancedCalendar> {
             ),
           ],
         ),
-        SizedBox(height: 16),
-        Observer(builder: (_) {
-          final brightness = MediaQuery.of(context).platformBrightness;
-          final isDarkMode = brightness == Brightness.dark;
-          return SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (var day in _generateDaysInMonth(_currentDate))
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedDate = day;
-                      });
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5.w),
-                      width: 70.r,
-                      height: 70.r,
-                      decoration: BoxDecoration(
-                        gradient: _selectedDate.day == day.day
-                            ? isDarkMode
-                                ? const LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      Color(0xff3a3a3a),
-                                      Color(0xff555555),
-                                    ],
-                                  )
-                                : const LinearGradient(
-                                    begin: Alignment.centerLeft,
-                                    end: Alignment.centerRight,
-                                    colors: [
-                                      Color.fromARGB(255, 243, 183, 93),
-                                      Color.fromARGB(255, 245, 130, 29),
-                                      Color.fromARGB(255, 243, 183, 93),
-                                    ],
-                                  )
-                            : null,
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.white,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${day.day}',
-                          style: TextStyle(
-                            color: _selectedDate.day == day.day
-                                ? Colors.white
-                                : Colors.black,
-                          ),
+        SizedBox(height: 16.h),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          controller: _scrollController,
+          child: Row(
+            children: [
+              for (var day in _generateDaysInMonth(_currentDate))
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedDate = day;
+                    });
+                    widget.onDateSelected(_selectedDate);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 5.w),
+                    width: 70.r,
+                    height: 70.r,
+                    decoration: BoxDecoration(
+                      gradient: _selectedDate.day == day.day
+                          ? const LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [
+                                Color.fromARGB(255, 243, 183, 93),
+                                Color.fromARGB(255, 245, 130, 29),
+                              ],
+                            )
+                          : null,
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.white,
+                    ),
+                    child: Center(
+                      child: Text(
+                        '${day.day}',
+                        style: TextStyle(
+                          fontSize: 18.spMin,
+                          fontWeight: FontWeight.w500,
+                          color: _selectedDate.day == day.day
+                              ? Colors.white
+                              : Colors.black,
                         ),
                       ),
                     ),
                   ),
-              ],
-            ),
-          );
-        }),
+                ),
+            ],
+          ),
+        ),
       ],
     );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: _selectedDate,
+        firstDate: DateTime(2015, 8),
+        lastDate: DateTime(2101));
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        widget.onDateSelected(_selectedDate);
+      });
+    }
   }
 }

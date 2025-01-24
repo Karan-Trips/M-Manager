@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:try1/Widgets_screen/loading_screen.dart';
+import 'package:try1/app_db.dart';
 import 'package:try1/auth/reset_password.dart';
 
 import 'package:try1/auth/sign_up_page.dart';
@@ -66,44 +67,53 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       )
-          .then((value) async {
-        var user = FirebaseAuth.instance.currentUser;
-        if (user != null && user.uid.isNotEmpty) {
-          expenseStore.userId = user.uid;
+          .then(
+        (value) async {
+          var user = FirebaseAuth.instance.currentUser;
+          if (user != null && user.uid.isNotEmpty) {
+            appDb.isLogin = true;
+            if (appDb.isFirstTime) {
+              appDb.isFirstTime = false;
+            }
 
-          print(
-              "User ID: !!!!!!!!!!!!!!!!! ! ${expenseStore.userId}@@@@@@@@@@@");
+            expenseStore.userId = user.uid;
 
-          DocumentReference userDoc =
-              FirebaseFirestore.instance.collection('users').doc(user.uid);
+            print(
+                "User ID: !!!!!!!!!!!!!!!!! ! ${expenseStore.userId}@@@@@@@@@@@");
 
-          DocumentSnapshot docSnapshot = await userDoc.get();
-          if (!docSnapshot.exists) {
-            await userDoc.set({
-              'uid': user.uid,
-              'email': user.email,
-              'name': user.displayName ?? 'Raju Don',
-              'expense': [],
-              'income': 0.0,
-              'created_at': FieldValue.serverTimestamp(),
-            });
+            DocumentReference userDoc =
+                FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+            DocumentSnapshot docSnapshot = await userDoc.get();
+            if (!docSnapshot.exists) {
+              await userDoc.set(
+                {
+                  'uid': user.uid,
+                  'email': user.email,
+                  'name': user.displayName ?? 'Raju Don',
+                  'expense': [],
+                  'income': 0.0,
+                  'created_at': FieldValue.serverTimestamp(),
+                },
+              );
+            }
+
+            await expenseStore.fetchExpenses();
+            await expenseStore.fetchIncome();
+          } else {
+            print("User is null or UID is empty.");
           }
-
-          await expenseStore.fetchExpenses();
-          await expenseStore.fetchIncome();
-        } else {
-          print("User is null or UID is empty.");
-        }
-        isLoading.value = false;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => MyMoneyManagerApp(
-              expenseStore: expenseStore,
-              user: user,
+          isLoading.value = false;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => MyMoneyManagerApp(
+                expenseStore: expenseStore,
+                user: user,
+              ),
             ),
-          ),
-        );
-      });
+          );
+        },
+      );
     } catch (error) {
       isLoading.value = false;
       print('Login failed: $error');
