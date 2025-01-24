@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:try1/Widgets_screen/loading_screen.dart';
+import 'package:try1/Widgets_screen/adavance_calcander.dart';
 import 'package:try1/screen/graph.dart';
 import '../firebase_store/expense_store.dart';
 
@@ -20,7 +20,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   int selectedIndex = 0;
-
+  DatePickerEntryMode? _currentDate;
   Color historyTabColor = Colors.deepOrangeAccent;
   Color graphTabColor = Colors.green;
 
@@ -28,6 +28,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+
     _tabController.addListener(() {
       setState(() {
         selectedIndex = _tabController.index;
@@ -42,6 +43,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
   @override
   void dispose() {
     _tabController.dispose();
+
     super.dispose();
   }
 
@@ -253,8 +255,54 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                     return const Center(child: Text('No expenses found.'));
                   }
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 10),
+                      SizedBox(height: 12.h),
+                      Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                builder: (context) => DatePickerDialog(
+                                    onDatePickerModeChange: (value) {
+                                      setState(() {
+                                        _currentDate = value;
+                                        print('$_currentDate');
+                                      });
+                                    },
+                                    initialCalendarMode: DatePickerMode.day,
+                                    initialDate: DateTime.now(),
+                                    firstDate: DateTime(2025),
+                                    lastDate: DateTime.now()),
+                                context: context,
+                                useSafeArea: true,
+                                barrierDismissible: true,
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  "Transactions",
+                                  style: TextStyle(fontSize: 20.sp),
+                                ),
+                                const Spacer(),
+                                Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 10.w),
+                                  child: Icon(
+                                    Icons.date_range,
+                                    size: 22.spMax,
+                                  ),
+                                ),
+                                Text(
+                                  '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                                  style: TextStyle(fontSize: 15.spMax),
+                                ),
+                              ],
+                            ),
+                          )),
+                      SizedBox(height: 15.h),
+                      AdvancedCalendar(),
                       ListView.separated(
                         shrinkWrap: true,
                         separatorBuilder: (BuildContext context, int index) =>
@@ -268,18 +316,6 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                             onDismissed: (direction) =>
                                 deleteExpense(expense.id),
                             background: slideLeftBackground(),
-                            // Container(
-                            //   decoration: BoxDecoration(
-                            //       color: Colors.red,
-                            //       borderRadius: BorderRadius.circular(10)),
-                            //   alignment: Alignment.centerRight,
-                            //   padding: EdgeInsets.only(right: 20),
-                            //   child: Icon(
-                            //     Icons.delete,
-                            //     color: Colors.white,
-                            //     size: 36,
-                            //   ),
-                            // ),
                             key: Key(expense.id),
                             child: Bounceable(
                               onTap: () {},

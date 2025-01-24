@@ -5,12 +5,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:try1/Widgets_screen/loading_screen.dart';
+import 'package:try1/auth/reset_password.dart';
 
 import 'package:try1/auth/sign_up_page.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/main.dart';
 import 'package:try1/utils/design_container.dart';
+// import 'package:try1/utils/screen_utils.dart';
 
 import '../utils/utils.dart';
 
@@ -24,6 +28,9 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final LocalAuthentication _localAuth = LocalAuthentication();
+
   final _formKey = GlobalKey<FormState>();
   ValueNotifier<bool> isLoading = ValueNotifier(false);
   ValueNotifier<bool> _isPasswordVisible = ValueNotifier<bool>(false);
@@ -109,35 +116,37 @@ class _LoginPageState extends State<LoginPage> {
   Widget _entryField(
       String title, bool isPassword, TextEditingController? controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.symmetric(vertical: 10.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15.spMax),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10.h),
           ValueListenableBuilder(
             valueListenable: _isPasswordVisible,
             builder: (context, value, child) => TextFormField(
-              style: TextStyle(color: Colors.red[900]),
+              style: TextStyle(
+                color: Colors.red[900],
+              ),
               controller: controller,
               obscureText: isPassword && !_isPasswordVisible.value,
               decoration: InputDecoration(
                 hintText:
                     isPassword ? 'Enter your password' : 'Enter your email',
-                hintStyle: const TextStyle(color: Colors.grey, fontSize: 15),
+                hintStyle: TextStyle(color: Colors.grey, fontSize: 15.spMax),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
+                  borderRadius: BorderRadius.circular(20.0.r),
                   borderSide: const BorderSide(color: Colors.grey),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
+                  borderRadius: BorderRadius.circular(20.0.r),
                   borderSide: const BorderSide(color: Colors.grey),
                 ),
                 errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
+                  borderRadius: BorderRadius.circular(20.0.r),
                   borderSide: const BorderSide(color: Colors.red),
                 ),
                 suffixIcon: isPassword
@@ -153,13 +162,13 @@ class _LoginPageState extends State<LoginPage> {
                       )
                     : const SizedBox.shrink(),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+                  borderRadius: BorderRadius.circular(12.0.r),
                   borderSide: const BorderSide(color: Colors.grey),
                 ),
                 fillColor: const Color(0xfff3f3f4),
                 filled: true,
                 contentPadding:
-                    const EdgeInsets.symmetric(vertical: 15, horizontal: 23),
+                    EdgeInsets.symmetric(vertical: 18.h, horizontal: 23.w),
               ),
             ),
           ),
@@ -312,7 +321,7 @@ class _LoginPageState extends State<LoginPage> {
                     right: -MediaQuery.of(context).size.width * .4,
                     child: const BezierContainer()),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -320,23 +329,45 @@ class _LoginPageState extends State<LoginPage> {
                       children: <Widget>[
                         SizedBox(height: height * .2),
                         _title(),
-                        const SizedBox(height: 50),
+                        SizedBox(height: 50.h),
                         _emailPasswordWidget(),
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20.h),
                         _submitButton('Login', () async {
                           bool isValid = await validate();
                           if (isValid) {
                             return _login();
                           }
                         }),
-                        Container(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          alignment: Alignment.centerRight,
-                          child: const Text('Forgot Password ?',
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ResetPasswordScreen()));
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 15.h),
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              'Forgot Password ?',
                               style: TextStyle(
-                                  fontSize: 14, fontWeight: FontWeight.w500)),
+                                fontSize: 14.spMax,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                         ),
                         _divider(),
+                        // GestureDetector(
+                        //   onTap: () async {
+                        //     // _loginWithBiometrics();
+                        //   },
+                        //   child: Image.asset(
+                        //     'images/pngs/fingerprint.png',
+                        //     scale: 3.h,
+                        //   ).pV(20),
+                        // ),
                         // const SizedBox(height: 20),
                         // _submitButton(
                         //     'SignUp',
@@ -354,4 +385,70 @@ class _LoginPageState extends State<LoginPage> {
       ),
     ));
   }
+
+  // Future<bool> _isBiometricAvailable() async {
+  //   try {
+  //     return await _localAuth.canCheckBiometrics ||
+  //         await _localAuth.isDeviceSupported();
+  //   } catch (e) {
+  //     print("Error checking biometrics: $e");
+  //     return false;
+  //   }
+  // }
+
+  // Future<bool> _authenticateWithBiometrics() async {
+  //   try {
+  //     return await _localAuth.authenticate(
+  //       localizedReason: 'Scan your fingerprint to log in',
+  //       options: const AuthenticationOptions(biometricOnly: true),
+  //     );
+  //   } catch (e) {
+  //     print("Error during biometric authentication: $e");
+  //     return false;
+  //   }
+  // }
+
+  // Future<void> _loginWithBiometrics() async {
+  //   if (await _isBiometricAvailable()) {
+  //     bool isAuthenticated = await _authenticateWithBiometrics();
+
+  //     if (isAuthenticated) {
+  //       isLoading.value = true;
+  //       try {
+  //         UserCredential userCredential = await _auth.signInAnonymously();
+  //         User? user = userCredential.user;
+
+  //         if (user != null) {
+  //           print("Successfully logged in with UID: ${user.uid}");
+  //           ScaffoldMessenger.of(context).showSnackBar(
+  //             SnackBar(content: Text('Login successful!')),
+  //           );
+
+  //           isLoading.value = false;
+  //           Navigator.of(context).pushReplacement(
+  //             MaterialPageRoute(
+  //               builder: (context) => MyMoneyManagerApp(
+  //                 expenseStore: expenseStore,
+  //                 user: user,
+  //               ),
+  //             ),
+  //           );
+  //         }
+  //       } catch (e) {
+  //         print("Error logging in: $e");
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Firebase login failed')),
+  //         );
+  //       }
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(content: Text('Authentication failed')),
+  //       );
+  //     }
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Biometric authentication not available')),
+  //     );
+  //   }
+  // }
 }

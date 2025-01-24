@@ -6,8 +6,6 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:local_auth/local_auth.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart' hide Card;
@@ -25,6 +23,7 @@ import 'package:try1/screen/add_trans.dart';
 
 import 'package:try1/screen/histroy.dart';
 import 'package:theme_provider/theme_provider.dart';
+import 'package:try1/welcome_screen/intro_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +56,9 @@ Future<void> main() async {
 
     final expenseStore = ExpenseStore();
 
-    runApp(MyMoneyManagerApp(expenseStore: expenseStore, user: user));
+    runApp(
+      MyMoneyManagerApp(expenseStore: expenseStore, user: user),
+    );
   });
 }
 
@@ -80,8 +81,9 @@ class MyMoneyManagerApp extends StatelessWidget {
           builder: (context, child) => child!,
           child: MaterialApp(
             debugShowCheckedModeBanner: false,
-            home:
-                user != null ? const MoneyManagerHomePage() : const LoginPage(),
+            home: IntroPage(),
+
+            // user != null ? const MoneyManagerHomePage() : const LoginPage(),
             theme: isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
           ),
         );
@@ -147,6 +149,36 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
       );
     }
 
+    void logout() {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Exit'),
+            content: const Text('Are you sure you want to exit?'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginPage()),
+                  );
+                },
+                child: const Text('Exit'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+
     return WillPopScope(
       onWillPop: () async {
         exitApp();
@@ -156,13 +188,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginPage()),
-              );
-            },
+            onPressed: () => logout,
           ),
           title: const Text('Money Manager'),
           centerTitle: true,
