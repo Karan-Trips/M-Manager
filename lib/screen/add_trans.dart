@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:intl/intl.dart';
@@ -105,10 +106,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
                     key: _formKey,
                     child: TextFormField(
                       decoration: InputDecoration(
+                        contentPadding: EdgeInsets.all(20.r),
                         labelText: 'Enter your Amount',
-                        border: const OutlineInputBorder(
+                        border: OutlineInputBorder(
                             borderRadius:
-                                BorderRadius.all(Radius.circular(50))),
+                                BorderRadius.all(Radius.circular(15.r))),
                         hintStyle: TextStyle(
                           color: isDarkMode ? Colors.white70 : Colors.black54,
                         ),
@@ -261,9 +263,10 @@ class _AddExpensePageState extends State<AddExpensePage> {
                           child: TextFormField(
                             decoration: InputDecoration(
                               labelText: "Enter the Income",
-                              border: const OutlineInputBorder(
+                              contentPadding: EdgeInsets.all(20.r),
+                              border: OutlineInputBorder(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(50)),
+                                    BorderRadius.all(Radius.circular(15.r)),
                               ),
                               hintStyle: TextStyle(
                                 color: isDarkMode ? Colors.white : Colors.black,

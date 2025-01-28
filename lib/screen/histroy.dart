@@ -321,9 +321,12 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                       _filteredExpenses.isEmpty
                           ? Center(
                               child: Text(
-                                  'No expenses available for the selected date',
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.grey)),
+                                'No expenses available for the selected date',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             )
                           : Expanded(
                               child: ListView.separated(
