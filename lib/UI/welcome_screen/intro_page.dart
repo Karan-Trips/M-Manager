@@ -3,12 +3,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:lottie/lottie.dart';
+import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:try1/app_db.dart';
 
 import 'package:try1/main.dart';
 
-import '../firebase_store/expense_store.dart';
+import '../../firebase_store/expense_store.dart';
 
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
@@ -18,7 +20,7 @@ class IntroPage extends StatefulWidget {
 }
 
 class _IntroPageState extends State<IntroPage> {
-  int _currentPage = 0;
+  final ValueNotifier<int> _currentPage = ValueNotifier(0);
 
   final List<Map<String, String>> _introData = [
     {
@@ -36,11 +38,11 @@ class _IntroPageState extends State<IntroPage> {
   ];
 
   void _onNextPressed() {
-    if (_currentPage < _introData.length - 1) {
+    if (_currentPage.value < _introData.length - 1) {
       setState(() {
-        _currentPage++;
+        _currentPage.value++;
       });
-      print(_currentPage);
+      print(_currentPage.value);
     } else {
       appDb.isFirstTime = false;
       final expenseStore = ExpenseStore();
@@ -59,7 +61,7 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    final intro = _introData[_currentPage];
+    final intro = _introData[_currentPage.value];
 
     return Scaffold(
       body: SafeArea(
@@ -73,7 +75,7 @@ class _IntroPageState extends State<IntroPage> {
                 height: 250.h,
                 fit: BoxFit.contain,
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 30.h),
               Text(
                 intro["title"]!,
                 style: const TextStyle(
@@ -82,27 +84,33 @@ class _IntroPageState extends State<IntroPage> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 15),
+              SizedBox(height: 15.h),
               Text(
                 intro["description"]!,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.spMin,
                   color: Colors.grey[700],
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _onNextPressed,
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  _currentPage < _introData.length - 1 ? "Next" : "Get Started",
-                ),
-              ),
+              SizedBox(height: 30.h),
+              ValueListenableBuilder(
+                  valueListenable: _currentPage,
+                  builder: (context, val, child) {
+                    return GestureDetector(
+                      onTap: _onNextPressed,
+                      child: CircularStepProgressIndicator(
+                        totalSteps: 2,
+                        currentStep: val + 1,
+                        width: 100,
+                        selectedColor: Colors.amber,
+                        roundedCap: (_, isSelected) {
+                          return isSelected;
+                        },
+                        child: Icon(Icons.arrow_forward),
+                      ),
+                    );
+                  }),
             ],
           ),
         ),

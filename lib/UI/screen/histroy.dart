@@ -7,7 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/Widgets_screen/adavance_calcander.dart';
 import 'package:try1/firebase_store/expense_store.dart';
-import 'package:try1/screen/graph.dart';
+import 'package:try1/UI/screen/graph.dart';
 import 'package:try1/utils/model.dart';
 
 class ExpenseSummaryPage extends StatefulWidget {
@@ -259,7 +259,9 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
               ),
             ),
             Expanded(
-              child: Observer(
+              child: 
+              
+              Observer(
                 builder: (_) {
                   if (expenseStore.isLoading) {
                     return Center(child: Lottie.asset('images/loading.json'));
@@ -318,69 +320,71 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                       ),
                       SizedBox(height: 20.h),
                       // isShowingDatePicker.value?
-                      _filteredExpenses.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No expenses available for the selected date',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
+                      // _filteredExpenses.isEmpty
+                      //     ? Center(
+                      //         child: Text(
+                      //           'No expenses available for the selected date',
+                      //           style: TextStyle(
+                      //             fontSize: 16,
+                      //             color: Colors.grey,
+                      //           ),
+                      //         ),
+                      //       )
+                      //     :
+                      Expanded(
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          separatorBuilder: (BuildContext context, int index) =>
+                              const Divider(),
+                          itemCount:
+                              // isShowingDatePicker.value
+                              //     ? _filteredExpenses.length
+                              // :
+                              expenseStore.expenses.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final expense = expenseStore.expenses[index];
+
+                            return Dismissible(
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (direction) =>
+                                  deleteExpense(expense.id),
+                              background: slideLeftBackground(),
+                              key: Key(expense.id),
+                              child: Bounceable(
+                                onTap: () {},
+                                child: Card(
+                                  color: Theme.of(context).cardColor,
+                                  elevation: 5,
+                                  child: ListTile(
+                                    isThreeLine: true,
+                                    trailing: IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        _showDeleteConfirmationDialog(
+                                            expense.id);
+                                      },
+                                    ),
+                                    leading: Column(
+                                      children: [
+                                        Text(expense.getFormattedDate()),
+                                        Text(expense.getFormattedTime()),
+                                      ],
+                                    ),
+                                    title: Text(
+                                      expense.category,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15),
+                                    ),
+                                    subtitle: Text(
+                                        'Amount: ₹${expense.amount.toStringAsFixed(2)}'),
+                                  ),
                                 ),
                               ),
-                            )
-                          : Expanded(
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                separatorBuilder:
-                                    (BuildContext context, int index) =>
-                                        const Divider(),
-                                itemCount: isShowingDatePicker.value
-                                    ? _filteredExpenses.length
-                                    : expenseStore.expenses.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  final expense = expenseStore.expenses[index];
-
-                                  return Dismissible(
-                                    direction: DismissDirection.endToStart,
-                                    onDismissed: (direction) =>
-                                        deleteExpense(expense.id),
-                                    background: slideLeftBackground(),
-                                    key: Key(expense.id),
-                                    child: Bounceable(
-                                      onTap: () {},
-                                      child: Card(
-                                        color: Theme.of(context).cardColor,
-                                        elevation: 5,
-                                        child: ListTile(
-                                          isThreeLine: true,
-                                          trailing: IconButton(
-                                            icon: const Icon(Icons.delete),
-                                            onPressed: () {
-                                              _showDeleteConfirmationDialog(
-                                                  expense.id);
-                                            },
-                                          ),
-                                          leading: Column(
-                                            children: [
-                                              Text(expense.getFormattedDate()),
-                                              Text(expense.getFormattedTime()),
-                                            ],
-                                          ),
-                                          title: Text(
-                                            expense.category,
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 15),
-                                          ),
-                                          subtitle: Text(
-                                              'Amount: ₹${expense.amount.toStringAsFixed(2)}'),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   );
                 },

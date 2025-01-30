@@ -12,7 +12,7 @@ class Loading extends StatefulWidget {
 
   const Loading({
     required this.status,
-    required this.child,
+    this.child = const SizedBox.shrink(),
     this.backgroundTransparent = false,
     this.message,
     super.key,

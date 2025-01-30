@@ -7,7 +7,7 @@ import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:try1/utils/model.dart';
 
-import '../firebase_store/expense_store.dart';
+import '../../firebase_store/expense_store.dart';
 
 class ExpenseGraphPage extends StatefulWidget {
   const ExpenseGraphPage({super.key});

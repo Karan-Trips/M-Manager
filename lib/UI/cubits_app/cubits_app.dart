@@ -1,0 +1,213 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:intl/intl.dart';
+import 'package:try1/UI/cubits_app/cubits_state.dart';
+import 'package:try1/app_db.dart';
+import 'package:try1/utils/model.dart';
+
+class AddExpenseCubit extends Cubit<AddExpenseState> {
+  AddExpenseCubit() : super(AddExpenseInitial());
+
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController incomeController = TextEditingController();
+  String selectedCategory = 'Groceries';
+  bool showIncomeTextField = false;
+
+  final List<String> categories = [
+    'Groceries',
+    'Fast-Food',
+    'Ghumne',
+    'Food',
+    'Medicine',
+    'Office',
+    'EMI',
+  ];
+
+  void updateCategory(String? category) {
+    if (category != null) {
+      selectedCategory = category;
+      emit(AddExpenseCategoryUpdated(category));
+    }
+  }
+
+  void toggleIncomeField() {
+    showIncomeTextField = !showIncomeTextField;
+    emit(AddExpenseIncomeFieldToggled(showIncomeTextField));
+  }
+
+  String? validateAmount(String? value) {
+    if (value == null ||
+        double.tryParse(value) == null ||
+        double.parse(value) <= 0) {
+      return 'Please enter a valid amount';
+    } else if (value.length > 8) {
+      return 'Amount is too large to handle';
+    }
+    return null;
+  }
+
+  String? validateIncome(String? value) {
+    if (value == null ||
+        double.tryParse(value) == null ||
+        double.parse(value) <= 0) {
+      return 'Please enter a valid income';
+    } else if (value.length > 8) {
+      return 'Amount is too large to handle';
+    }
+    return null;
+  }
+
+  Future<void> fetchExpenses() async {
+    emit(ExpenseLoading());
+    try {
+      final userId = await appDb.getUserId();
+      if (userId == null) {
+        emit(ExpenseFailure('User ID not found.'));
+        return;
+      }
+
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      DocumentSnapshot docSnapshot = await userDoc.get();
+      if (docSnapshot.exists) {
+        List<dynamic> expenseList = docSnapshot['expense'] ?? [];
+        List<Expense> expenses = expenseList
+            .map((expense) => Expense.fromMap(expense as Map<String, dynamic>))
+            .toList();
+        emit(ExpenseFetched(expenses));
+      } else {
+        emit(ExpenseFailure('User document does not exist.'));
+      }
+    } catch (error) {
+      emit(ExpenseFailure('Error fetching expenses: $error'));
+    }
+  }
+
+  Future<void> fetchIncome() async {
+    emit(ExpenseLoading());
+    try {
+      final userId = await appDb.getUserId();
+      if (userId == null) {
+        emit(ExpenseFailure('User ID not found.'));
+        return;
+      }
+
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      DocumentSnapshot docSnapshot = await userDoc.get();
+      if (docSnapshot.exists) {
+        double totalIncome = docSnapshot['income'] ?? 0.0;
+        emit(IncomeFetched(totalIncome));
+      } else {
+        emit(ExpenseFailure('User document does not exist.'));
+      }
+    } catch (error) {
+      emit(ExpenseFailure('Error fetching income: $error'));
+    }
+  }
+
+  Future<void> saveExpense() async {
+    if (validateAmount(amountController.text) == null) {
+      emit(ExpenseLoading());
+      try {
+        final userId = await appDb.getUserId();
+        if (userId == null) {
+          emit(ExpenseFailure('User ID not found.'));
+          return;
+        }
+
+        double amount = double.parse(amountController.text);
+        String expenseId =
+            FirebaseFirestore.instance.collection('expenses').doc().id;
+        final expense = Expense(
+          id: expenseId,
+          date: DateTime.now(),
+          category: selectedCategory,
+          amount: amount,
+          time: DateFormat('HH:mm').format(DateTime.now()),
+        );
+
+        DocumentReference userDoc =
+            FirebaseFirestore.instance.collection('users').doc(userId);
+
+        await userDoc.update({
+          'expense': FieldValue.arrayUnion([expense.toMap()]),
+        });
+
+        emit(ExpenseSuccess('Transaction Saved!'));
+      } catch (e) {
+        emit(ExpenseFailure('Failed to save expense: ${e.toString()}'));
+      }
+    } else {
+      emit(ExpenseFailure('Invalid input for amount'));
+    }
+  }
+
+  Future<void> deleteExpense(String expenseId) async {
+    emit(ExpenseLoading());
+    try {
+      final userId = await appDb.getUserId();
+      if (userId == null) {
+        emit(ExpenseFailure('User ID not found.'));
+        return;
+      }
+
+      DocumentReference userDoc =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      DocumentSnapshot docSnapshot = await userDoc.get();
+      if (docSnapshot.exists) {
+        List<dynamic> currentExpenses = docSnapshot['expense'] ?? [];
+
+        final expenseToDelete = currentExpenses.firstWhere(
+          (expense) => expense['id'] == expenseId,
+          orElse: () => null,
+        );
+
+        if (expenseToDelete != null) {
+          await userDoc.update({
+            'expense': FieldValue.arrayRemove([expenseToDelete]),
+          });
+          emit(ExpenseSuccess('Expense deleted successfully.'));
+        } else {
+          emit(ExpenseFailure('Expense with the given ID not found.'));
+        }
+      } else {
+        emit(ExpenseFailure('User document does not exist.'));
+      }
+    } catch (error) {
+      emit(ExpenseFailure('Error deleting expense: $error'));
+    }
+  }
+
+  Future<void> updateIncome() async {
+    if (validateIncome(incomeController.text) == null) {
+      emit(ExpenseLoading());
+      try {
+        final userId = await appDb.getUserId();
+        if (userId == null) {
+          emit(ExpenseFailure('User ID not found. Please sign in again.'));
+          return;
+        }
+
+        double newIncomeValue = double.parse(incomeController.text);
+
+        DocumentReference userDoc =
+            FirebaseFirestore.instance.collection('users').doc(userId);
+
+        await userDoc.update({'income': newIncomeValue});
+        emit(ExpenseSuccess('Income value updated successfully'));
+        incomeController.clear();
+      } catch (e) {
+        emit(ExpenseFailure('Failed to update income: ${e.toString()}'));
+      }
+    } else {
+      emit(ExpenseFailure('Invalid input for income'));
+    }
+  }
+}

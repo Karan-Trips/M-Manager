@@ -19,11 +19,11 @@ import 'package:try1/fcm/notification.dart';
 import 'package:try1/firebase_options.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/locator.dart';
-import 'package:try1/screen/add_trans.dart';
+import 'package:try1/UI/screen/add_trans.dart';
 
-import 'package:try1/screen/histroy.dart';
+import 'package:try1/UI/screen/histroy.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:try1/welcome_screen/intro_page.dart';
+import 'package:try1/UI/welcome_screen/intro_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -191,7 +191,9 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
         appBar: AppBar(
           leading: IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () => logout,
+            onPressed: () {
+              logout();
+            },
           ),
           title: const Text('Money Manager'),
           centerTitle: true,
