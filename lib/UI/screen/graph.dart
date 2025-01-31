@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -143,7 +144,8 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                                       TextButton(
                                         child: const Text('Close'),
                                         onPressed: () {
-                                          Navigator.of(context).pop();
+                                          // Navigator.of(context).pop();
+                                          Get.back();
                                         },
                                       ),
                                     ],

@@ -3,6 +3,7 @@ import 'package:flutter_bounceable/flutter_bounceable.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/Widgets_screen/adavance_calcander.dart';
@@ -259,9 +260,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
               ),
             ),
             Expanded(
-              child: 
-              
-              Observer(
+              child: Observer(
                 builder: (_) {
                   if (expenseStore.isLoading) {
                     return Center(child: Lottie.asset('images/loading.json'));
@@ -407,7 +406,8 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+                Get.back();
               },
             ),
             TextButton(
@@ -415,7 +415,8 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
               onPressed: () {
                 deleteExpense(id);
                 showToast("Transaction Deleted!");
-                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+                Get.back();
               },
             ),
           ],

@@ -87,14 +87,16 @@ class LoginController extends GetxController {
             print("User is null or UID is empty.");
           }
           isLoading.value = false;
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (context) => MyMoneyManagerApp(
-                expenseStore: expenseStore,
-                user: user,
-              ),
-            ),
-          );
+          Get.off(() => MyMoneyManagerApp());
+          // Get.off(MyMoneyManagerApp());
+          // Navigator.of(context).pushReplacement(
+          //   MaterialPageRoute(
+          //     builder: (context) => MyMoneyManagerApp(
+          //       expenseStore: expenseStore,
+          //       user: user,
+          //     ),
+          //   ),
+          // );
         },
       );
     } catch (error) {

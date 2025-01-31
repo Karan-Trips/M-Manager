@@ -153,8 +153,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const SignUpPage()));
+        Get.to(SignUpPage());
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (context) => const SignUpPage()));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),
@@ -218,71 +219,68 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Obx(() {
-        return Loading(
-          status: loginController.isLoading.value,
-          child: Form(
-            key: _formKey,
-            child: SizedBox(
-              height: height,
-              child: Stack(
-                children: <Widget>[
-                  Positioned(
-                    top: -height * .15,
-                    right: -MediaQuery.of(context).size.width * .4,
-                    child: const BezierContainer(),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20.w),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          SizedBox(height: height * .2),
-                          _title(),
-                          SizedBox(height: 50.h),
-                          _emailPasswordWidget(),
-                          SizedBox(height: 20.h),
-                          _submitButton('Login', () async {
-                            bool isValid =
-                                await loginController.validate(context);
-                            if (isValid) {
-                              return loginController.login(context);
-                            }
-                          }),
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const ResetPasswordScreen()));
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(vertical: 15.h),
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                'Forgot Password ?',
-                                style: TextStyle(
-                                  fontSize: 14.spMax,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
+        body: Loading(
+      status: loginController.isLoading.value,
+      child: Form(
+        key: _formKey,
+        child: SizedBox(
+          height: height,
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                top: -height * .15,
+                right: -MediaQuery.of(context).size.width * .4,
+                child: const BezierContainer(),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(height: height * .2),
+                      _title(),
+                      SizedBox(height: 50.h),
+                      _emailPasswordWidget(),
+                      SizedBox(height: 20.h),
+                      _submitButton('Login', () async {
+                        bool isValid = await loginController.validate(context);
+                        if (isValid) {
+                          return loginController.login(context);
+                        }
+                      }),
+                      InkWell(
+                        onTap: () {
+                          Get.to(ResetPasswordScreen());
+                          // Navigator.push(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //         builder: (context) =>
+                          //             const ResetPasswordScreen()));
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 15.h),
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            'Forgot Password ?',
+                            style: TextStyle(
+                              fontSize: 14.spMax,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          _divider(),
-                          _createAccountLabel(),
-                        ],
+                        ),
                       ),
-                    ),
+                      _divider(),
+                      _createAccountLabel(),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        );
-      }),
-    );
+        ),
+      ),
+    ));
   }
 }

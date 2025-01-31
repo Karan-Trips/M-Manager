@@ -3,6 +3,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/Widgets_screen/firebase_exceptions.dart';
 import 'package:try1/utils/design_container.dart';
@@ -59,7 +61,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Get.back(),
+                    // Navigator.pop(context),
                     child: const Icon(Icons.close),
                   ),
                   SizedBox(height: 70.h),
@@ -148,7 +151,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             content: Text('Password reset email sent'),
                           ),
                         );
-                        Navigator.pop(context);
+                        // Navigator.pop(context);
+                        Get.back();
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(

@@ -11,6 +11,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:get/get.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
 import 'package:try1/app_db.dart';
@@ -79,7 +81,7 @@ class MyMoneyManagerApp extends StatelessWidget {
         final isDarkMode = brightness == Brightness.dark;
         return ScreenUtilInit(
           builder: (context, child) => child!,
-          child: MaterialApp(
+          child: GetMaterialApp(
             debugShowCheckedModeBanner: false,
             home: user != null
                 ? const MoneyManagerHomePage()
@@ -136,7 +138,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Get.back();
                 },
               ),
               TextButton(
@@ -162,17 +164,19 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
               TextButton(
                 child: const Text('Cancel'),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Get.back();
                 },
               ),
               TextButton(
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
                   appDb.isLogin = false;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                  );
+                  Get.off(LoginPage());
+
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => const LoginPage()),
+                  // );
                 },
                 child: const Text('Exit'),
               ),
@@ -386,11 +390,12 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                   children: <Widget>[
                     InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const AddExpensePage()),
-                        );
+                        Get.to(AddExpensePage);
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => const AddExpensePage()),
+                        // );
                       },
                       child: Container(
                         width: 250,

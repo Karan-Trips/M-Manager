@@ -148,8 +148,9 @@ class SignUpPage extends StatelessWidget {
   Widget _loginAccountLabel(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const LoginPage()));
+        Get.to(LoginPage());
+        // Navigator.push(context,
+        //     MaterialPageRoute(builder: (context) => const LoginPage()));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),

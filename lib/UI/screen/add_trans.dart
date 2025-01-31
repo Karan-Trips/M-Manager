@@ -3,12 +3,13 @@
 import 'dart:io';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:dropdown_cupertino/dropdown_cupertino.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/UI/cubits_app/cubits_app.dart';
 import 'package:try1/UI/cubits_app/cubits_state.dart';
@@ -52,7 +53,8 @@ class _AddExpensePageState extends State<AddExpensePage> {
               textColor: Colors.white,
               fontSize: 16.0,
             );
-            Navigator.pop(context);
+            // Navigator.pop(context);
+            Get.back();
           } else if (state is ExpenseFailure) {
             Fluttertoast.showToast(
               msg: state.error,

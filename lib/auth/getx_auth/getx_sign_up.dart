@@ -53,7 +53,8 @@ class SignUpController extends GetxController {
         _passwordController.clear();
         _usernameController.clear();
         isLoading.value = false;
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
+        Get.back();
       } catch (error) {
         isLoading.value = false;
         showMessageTop(context, 'Signup failed ${error.toString()}');

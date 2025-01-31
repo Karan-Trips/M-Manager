@@ -6,7 +6,7 @@ enum AuthStatus {
   emailAlreadyExists,
   invalidEmail,
   weakPassword,
-  unknown,
+  unknown, pending, initial, emptyEmail,
 }
 
 class AuthExceptionHandler {
