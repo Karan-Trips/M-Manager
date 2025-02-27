@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:try1/Widgets_screen/loading_screen.dart';
+import 'package:try1/widgets_screen/loading_screen.dart';
 import 'package:try1/auth/getx_auth/getx_login.dart';
 import 'package:try1/auth/reset_password.dart';
 

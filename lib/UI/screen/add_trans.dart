@@ -13,7 +13,8 @@ import 'package:get/get.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/UI/cubits_app/cubits_app.dart';
 import 'package:try1/UI/cubits_app/cubits_state.dart';
-import 'package:try1/Widgets_screen/loading_screen.dart';
+import 'package:try1/widgets_screen/ai/ai_page_learning.dart';
+import 'package:try1/widgets_screen/loading_screen.dart';
 
 enum ExpenseCategory {
   food,
@@ -139,6 +140,16 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 _buildIconButton(cubit.updateIncome, isIOS),
               ],
             ),
+          SizedBox(height: 20.h),
+          ElevatedButton(
+            onPressed: () {
+              Get.to(() => ScanReceiptPage());
+            },
+            child: Text(
+              "Scan the page",
+              style: TextStyle(color: Colors.red),
+            ),
+          )
         ],
       ),
     );

@@ -6,7 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:theme_provider/theme_provider.dart';
-import 'package:try1/Widgets_screen/firebase_exceptions.dart';
+import 'package:try1/widgets_screen/firebase_exceptions.dart';
 import 'package:try1/utils/design_container.dart';
 
 class ResetPasswordScreen extends StatefulWidget {

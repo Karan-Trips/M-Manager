@@ -15,6 +15,8 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try1/widgets_screen/internet_connectivity/internet_connectivity.dart';
+import 'package:try1/widgets_screen/no_internetpage.dart';
 import 'package:try1/app_db.dart';
 import 'package:try1/auth/login_screen.dart';
 import 'package:try1/fcm/notification.dart';
@@ -29,7 +31,7 @@ import 'package:try1/UI/welcome_screen/intro_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  Get.put(InternetController());
   await Hive.initFlutter();
   await Hive.openBox<String>('authBox');
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
@@ -81,14 +83,21 @@ class MyMoneyManagerApp extends StatelessWidget {
         final isDarkMode = brightness == Brightness.dark;
         return ScreenUtilInit(
           builder: (context, child) => child!,
-          child: GetMaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: user != null
-                ? const MoneyManagerHomePage()
-                : appDb.isFirstTime
-                    ? const IntroPage()
-                    : LoginPage(),
-            theme: isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
+          child: GetX<InternetController>(
+            builder: (internetController) {
+              return GetMaterialApp(
+                debugShowCheckedModeBanner: false,
+                home: internetController.isConnected.value
+                    ? (user != null
+                        ? const MoneyManagerHomePage()
+                        : appDb.isFirstTime
+                            ? const IntroPage()
+                            : LoginPage())
+                    : NoInternetPage(),
+                theme:
+                    isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
+              );
+            },
           ),
         );
       }),

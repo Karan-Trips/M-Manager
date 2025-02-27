@@ -6,7 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:try1/Widgets_screen/adavance_calcander.dart';
+import 'package:try1/widgets_screen/adavance_calcander.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/UI/screen/graph.dart';
 import 'package:try1/utils/model.dart';
