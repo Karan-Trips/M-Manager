@@ -1,0 +1,2 @@
+/Users/hyperlink/Desktop/Projects/M-Manager/android/app/.cxx/RelWithDebInfo/206c6u1s/x86/CMakeFiles/rebuild_cache.dir
+/Users/hyperlink/Desktop/Projects/M-Manager/android/app/.cxx/RelWithDebInfo/206c6u1s/x86/CMakeFiles/edit_cache.dir
