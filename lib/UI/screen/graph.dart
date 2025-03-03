@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:try1/utils/model.dart';
+import 'package:try1/widgets_screen/custom_barchart.dart';
 
 import '../../firebase_store/expense_store.dart';
 
@@ -19,6 +20,7 @@ class ExpenseGraphPage extends StatefulWidget {
 
 class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
   bool isDarkMode = false;
+  bool isBarchart = false;
   int? touchedIndex;
   double? totalAmount;
   double? perAmount;
@@ -99,75 +101,96 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
 
           return Column(
             children: [
+              30.verticalSpace,
               Expanded(
-                child: Stack(
-                  children: [
-                    PieChart(
-                      PieChartData(
-                        sections: pieChartSections,
-                        titleSunbeamLayout: true,
-                        borderData: FlBorderData(
-                            show: false,
-                            border: Border.all(color: Colors.black, width: 2)),
-                        centerSpaceRadius: 90,
-                        sectionsSpace: 0,
-                        pieTouchData: PieTouchData(
-                          touchCallback:
-                              (FlTouchEvent event, PieTouchResponse? response) {
-                            if (!event.isInterestedForInteractions ||
-                                response?.touchedSection == null) {
-                              setState(() {
-                                touchedIndex = -1;
-                              });
-                              return;
-                            }
-                            setState(() {
-                              touchedIndex =
-                                  response!.touchedSection!.touchedSectionIndex;
-                              final touchedCategory = categoryToAmount.keys
-                                  .toList()[touchedIndex ?? 0];
-                              final touchedAmount =
-                                  categoryToAmount[touchedCategory] ?? 0;
-                              final touchedCount =
-                                  categoryToCount[touchedCategory] ?? 0;
+                child: isBarchart
+                    ? Stack(
+                        children: [
+                          PieChart(
+                            PieChartData(
+                              sections: pieChartSections,
+                              titleSunbeamLayout: true,
+                              borderData: FlBorderData(
+                                show: false,
+                              ),
+                              centerSpaceRadius: 90,
+                              sectionsSpace: 0,
+                              pieTouchData: PieTouchData(
+                                touchCallback: (FlTouchEvent event,
+                                    PieTouchResponse? response) {
+                                  if (!event.isInterestedForInteractions ||
+                                      response?.touchedSection == null) {
+                                    setState(() {
+                                      touchedIndex = -1;
+                                    });
+                                    return;
+                                  }
+                                  setState(() {
+                                    touchedIndex = response!
+                                        .touchedSection!.touchedSectionIndex;
+                                    final touchedCategory = categoryToAmount
+                                        .keys
+                                        .toList()[touchedIndex ?? 0];
+                                    final touchedAmount =
+                                        categoryToAmount[touchedCategory] ?? 0;
+                                    final touchedCount =
+                                        categoryToCount[touchedCategory] ?? 0;
 
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text(touchedCategory),
-                                    content: Text(
-                                      'Total Amount: ₹${touchedAmount.toStringAsFixed(2)}\n'
-                                      'Entries: $touchedCount',
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        child: const Text('Close'),
-                                        onPressed: () {
-                                          // Navigator.of(context).pop();
-                                          Get.back();
-                                        },
-                                      ),
-                                    ],
-                                  );
+                                    showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: Text(touchedCategory),
+                                          content: Text(
+                                            'Total Amount: ₹${touchedAmount.toStringAsFixed(2)}\n'
+                                            'Entries: $touchedCount',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              child: const Text('Close'),
+                                              onPressed: () {
+                                                Get.back();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  });
                                 },
-                              );
-                            });
-                          },
-                          enabled: true,
+                                enabled: true,
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              '${calculatePercenategeTotal()}% of Income',
+                              style: TextStyle(
+                                fontSize: 16.spMax,
+                                color: isDarkMode ? Colors.black : Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Padding(
+                        padding: EdgeInsets.only(
+                          right: 12.w,
+                          left: 12.w,
                         ),
-                      ),
-                    ),
-                    Center(
-                      child: Text(
-                        '${calculatePercenategeTotal()}% of Income',
-                        style: TextStyle(
-                          fontSize: 16.spMax,
-                          color: isDarkMode ? Colors.black : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+                        child: CategoryBarChart(
+                          categoryToAmount: categoryToAmount,
+                        )),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 25.h),
+                child: TextButton(
+                  onPressed: () {
+                    setState(() {
+                      isBarchart = !isBarchart;
+                    });
+                  },
+                  child: Text(' Bar-Chart'),
                 ),
               ),
               Expanded(

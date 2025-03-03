@@ -21,12 +21,6 @@ class NoInternetPage extends StatelessWidget {
             SizedBox(height: 10),
             Text("Please check your internet and try again."),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Get.find<InternetController>().checkInternet();
-              },
-              child: Text("Retry"),
-            ),
           ],
         ),
       ),

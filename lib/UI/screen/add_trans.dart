@@ -143,7 +143,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           SizedBox(height: 20.h),
           ElevatedButton(
             onPressed: () {
-              // Get.to(() => ScanReceiptPage());
+              Get.to(() => ScanReceiptPage());
             },
             child: Text(
               "Scan the page",

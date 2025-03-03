@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try1/UI/screen/spiltter/split_page.dart';
 import 'package:try1/widgets_screen/internet_connectivity/internet_connectivity.dart';
 import 'package:try1/widgets_screen/no_internetpage.dart';
 import 'package:try1/app_db.dart';
@@ -34,6 +35,10 @@ Future<void> main() async {
   Get.put(InternetController());
   await Hive.initFlutter();
   await Hive.openBox<String>('authBox');
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -78,29 +83,30 @@ class MyMoneyManagerApp extends StatelessWidget {
         AppTheme.light(),
         AppTheme.dark(),
       ],
-      child: Builder(builder: (context) {
-        final Brightness brightness = MediaQuery.of(context).platformBrightness;
-        final isDarkMode = brightness == Brightness.dark;
-        return ScreenUtilInit(
-          builder: (context, child) => child!,
-          child: GetX<InternetController>(
-            builder: (internetController) {
-              return GetMaterialApp(
-                debugShowCheckedModeBanner: false,
-                home: internetController.isConnected.value
+      child: ScreenUtilInit(
+        builder: (context, child) {
+          final Brightness brightness =
+              MediaQuery.of(context).platformBrightness;
+          final isDarkMode = brightness == Brightness.dark;
+
+          return GetMaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
+            home: GetBuilder<InternetController>(
+              init: InternetController(),
+              builder: (internetController) {
+                return internetController.isConnected.value
                     ? (user != null
                         ? const MoneyManagerHomePage()
                         : appDb.isFirstTime
                             ? const IntroPage()
                             : LoginPage())
-                    : NoInternetPage(),
-                theme:
-                    isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
-              );
-            },
-          ),
-        );
-      }),
+                    : NoInternetPage();
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -399,7 +405,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                   children: <Widget>[
                     InkWell(
                       onTap: () {
-                        Get.to(AddExpensePage);
+                        Get.to(() => const AddExpensePage());
                         // Navigator.push(
                         //   context,
                         //   MaterialPageRoute(
@@ -438,11 +444,12 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                     const SizedBox(height: 50),
                     InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ExpenseSummaryPage()),
-                        );
+                        Get.to(() => const ExpenseSummaryPage());
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //       builder: (context) => const ExpenseSummaryPage()),
+                        // );
                       },
                       child: Container(
                         width: 250,
@@ -469,6 +476,40 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                         height: 70,
                         child: const Text(
                           'Expense Summary',
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 50),
+                    InkWell(
+                      onTap: () {
+                        Get.to(() => const SplitExpensePage());
+                      },
+                      child: Container(
+                        width: 250,
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 35),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(40)),
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                  color: Colors.grey.shade200,
+                                  offset: const Offset(2, 4),
+                                  blurRadius: 5,
+                                  spreadRadius: 2)
+                            ],
+                            gradient: const LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [
+                                  Color(0xfffbb448),
+                                  Color(0xfff7892b)
+                                ])),
+                        height: 70,
+                        child: const Text(
+                          'Split',
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
                       ),
