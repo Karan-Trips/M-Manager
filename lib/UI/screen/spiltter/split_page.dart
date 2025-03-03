@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,7 +30,8 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
 
   Future<void> _getContacts() async {
     if (await Permission.contacts.request().isGranted) {
-      List<Contact> contacts = await FlutterContacts.getContacts(withProperties: true);
+      List<Contact> contacts =
+          await FlutterContacts.getContacts(withProperties: true);
       setState(() {
         _contacts = contacts;
         _filteredContacts = contacts;
@@ -60,7 +62,8 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
     double splitAmount = totalAmount / friendsCount;
 
     for (var contact in _selectedContacts) {
-      _sendNotification(contact.displayName, "You owe ₹${splitAmount.toStringAsFixed(2)}");
+      _sendNotification(
+          contact.displayName, "You owe ₹${splitAmount.toStringAsFixed(2)}");
     }
   }
 
@@ -68,6 +71,43 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
     await _firebaseMessaging.subscribeToTopic("expense_notifications");
     Fluttertoast.showToast(
         msg: "Notification sent: $title - $body", gravity: ToastGravity.BOTTOM);
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+    required TextInputType keyboardType,
+    required String? Function(String?) validator,
+    required bool isDarkMode,
+    required bool isIOS,
+  }) {
+    return isIOS
+        ? CupertinoTextField(
+            controller: controller,
+            placeholder: hintText,
+            keyboardType: keyboardType,
+            padding: EdgeInsets.all(16.r),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+          )
+        : TextFormField(
+            controller: controller,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(20.r),
+              labelText: hintText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15.r)),
+              ),
+              hintStyle: TextStyle(
+                color: isDarkMode ? Colors.white70 : Colors.black54,
+              ),
+            ),
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validator: validator,
+          );
   }
 
   @override
@@ -80,21 +120,27 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Lottie.asset("images/moneysplit.json", height: 200.h),
-            TextField(
+            _buildTextField(
               controller: _amountController,
+              hintText: 'Enter Total Amount',
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
-                labelText: "Total Amount",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.money),
-              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a valid amount';
+                }
+                return null;
+              },
+              isDarkMode: false,
+              isIOS: false,
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 15.h),
             TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Search Contacts",
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(15.r)),
+                ),
                 prefixIcon: Icon(Icons.search),
               ),
               onChanged: _filterContacts,
@@ -130,7 +176,8 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
               icon: const Icon(Icons.send),
               label: const Text("Split & Notify"),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10)),
               ),

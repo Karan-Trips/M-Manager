@@ -35,3 +35,13 @@ class AddExpenseIncomeFieldToggled extends AddExpenseState {
   final bool isVisible;
   AddExpenseIncomeFieldToggled(this.isVisible);
 }
+
+class AddExpenseCategoryAdded extends AddExpenseState {
+  final List<String> categories;
+  AddExpenseCategoryAdded(this.categories);
+}
+
+class AddExpenseCategoryRemoved extends AddExpenseState {
+  final List<String> categories;
+  AddExpenseCategoryRemoved(this.categories);
+}

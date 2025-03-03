@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobx/mobx.dart';
 import 'package:try1/app_db.dart';
 import '../utils/model.dart';

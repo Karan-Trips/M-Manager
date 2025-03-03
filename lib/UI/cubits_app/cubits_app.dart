@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, use_build_context_synchronously
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,7 +17,7 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
   String selectedCategory = 'Groceries';
   bool showIncomeTextField = false;
 
-  final List<String> categories = [
+  List<String> categories = [
     'Groceries',
     'Fast-Food',
     'Ghumne',
@@ -30,6 +31,20 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     if (category != null) {
       selectedCategory = category;
       emit(AddExpenseCategoryUpdated(category));
+    }
+  }
+
+  void addCategory(String newCategory) {
+    if (newCategory.isNotEmpty && !categories.contains(newCategory)) {
+      categories.add(newCategory);
+      emit(AddExpenseCategoryAdded(categories));
+    }
+  }
+
+  void removeCategory(String category) {
+    if (categories.contains(category)) {
+      categories.remove(category);
+      emit(AddExpenseCategoryRemoved(categories));
     }
   }
 
@@ -211,3 +226,73 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     }
   }
 }
+
+class BudgetCubit extends Cubit<Map<String, double>> {
+  BudgetCubit() : super({});
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  String? get _userId => _auth.currentUser?.uid;
+
+  // Fetch budget from Firebase
+  Future<void> fetchBudgets() async {
+    if (_userId == null) {
+      print("❌ User not logged in!");
+      return;
+    }
+
+    try {
+      print("🔍 Fetching budgets for User ID: $_userId");
+
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('budgets') // Fetch from user's budgets
+          .get();
+
+      final budgetData = <String, double>{};
+      for (var doc in snapshot.docs) {
+        budgetData[doc.id] = (doc.data()['amount'] as num).toDouble();
+      }
+
+      print("✅ Fetched budgets: $budgetData");
+      emit(budgetData);
+    } catch (e) {
+      print("❌ Error fetching budgets: $e");
+    }
+  }
+
+  // Set budget in Firestore
+  Future<void> setBudget(String category, double amount) async {
+    if (_userId == null) {
+      print("❌ Cannot set budget, user not logged in!");
+      return;
+    }
+
+    try {
+      print("📝 Setting budget for $category: ₹$amount");
+
+      await _firestore
+          .collection('users')
+          .doc(_userId)
+          .collection('budgets') // Store in user's budgets
+          .doc(category)
+          .set({'amount': amount});
+
+      final updatedBudgets = Map<String, double>.from(state);
+      updatedBudgets[category] = amount;
+      emit(updatedBudgets);
+
+      print("✅ Budget updated: $updatedBudgets");
+    } catch (e) {
+      print("❌ Error setting budget: $e");
+    }
+  }
+
+  // Get budget value for a category
+  double getBudget(String category) => state[category] ?? 0.0;
+}
+
+  // Set budget in Firestore for the logged-in user
+ 

@@ -16,13 +16,6 @@ import 'package:try1/UI/cubits_app/cubits_state.dart';
 import 'package:try1/widgets_screen/ai/ai_page_learning.dart';
 import 'package:try1/widgets_screen/loading_screen.dart';
 
-enum ExpenseCategory {
-  food,
-  travel,
-  shopping,
-  bills,
-  entertainment,
-}
 
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
@@ -32,13 +25,6 @@ class AddExpensePage extends StatefulWidget {
 }
 
 class _AddExpensePageState extends State<AddExpensePage> {
-  final Map<ExpenseCategory?, String> categoryMap = {
-    ExpenseCategory.food: "Food",
-    ExpenseCategory.travel: "Travel",
-    ExpenseCategory.shopping: "Shopping",
-    ExpenseCategory.bills: "Bills",
-    ExpenseCategory.entertainment: "Entertainment",
-  };
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -143,7 +129,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           SizedBox(height: 20.h),
           ElevatedButton(
             onPressed: () {
-              Get.to(() => ScanReceiptPage());
+              Get.to(() => RecpitPage());
             },
             child: Text(
               "Scan the page",
@@ -204,20 +190,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
   Widget _buildDropdown(AddExpenseCubit cubit, bool isDarkMode, bool isIOS) {
     return
-        // isIOS
-        //     ? DropDownCupertino(
-        //         style: TextStyle(
-        //           color: isDarkMode ? Colors.black : Colors.white,
-        //         ),
-        //         initialText: "Select a Person:",
-        //         pickList: categoryMap,
-        //         height: 160,
-        //         onSelectedItemChanged: (selected) {
-        //           debugPrint("Selected text is: $selected");
-        //           cubit.updateCategory(selected.toString());
-        //         },
-        //       )
-        //     :
+      
         Container(
       padding: EdgeInsets.symmetric(horizontal: 12.0.w, vertical: 8.0.h),
       decoration: BoxDecoration(

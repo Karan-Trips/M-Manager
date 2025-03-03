@@ -15,6 +15,7 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try1/UI/screen/setting_page.dart';
 import 'package:try1/UI/screen/spiltter/split_page.dart';
 import 'package:try1/widgets_screen/internet_connectivity/internet_connectivity.dart';
 import 'package:try1/widgets_screen/no_internetpage.dart';
@@ -219,18 +220,12 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           actions: [
             IconButton(
-              icon: Observer(
-                builder: (_) => Icon(
-                  ThemeProvider.themeOf(context).id == 'default_light_theme'
-                      ? Icons.brightness_4_outlined
-                      : Icons.brightness_medium_outlined,
-                ),
+              icon: Icon(
+                Icons.settings,
+                color: Theme.of(context).iconTheme.color,
               ),
               onPressed: () {
-                setState(() {
-                  ThemeProvider.controllerOf(context).nextTheme();
-                  print(ThemeProvider.controllerOf(context).currentThemeId);
-                });
+                Get.to(() => SettingsPage());
               },
             ),
           ],

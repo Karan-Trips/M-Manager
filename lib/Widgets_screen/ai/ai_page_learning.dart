@@ -1,121 +1,188 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:try1/widgets_screen/ai/model/recepit.dart';
 
-class ScanReceiptPage extends StatefulWidget {
-  const ScanReceiptPage({super.key});
+class RecpitPage extends StatefulWidget {
+  const RecpitPage({super.key});
 
   @override
-  State<ScanReceiptPage> createState() => _ScanReceiptPageState();
+  State<RecpitPage> createState() => _RecpitPageState();
 }
 
-class _ScanReceiptPageState extends State<ScanReceiptPage> {
-  File? _image;
-  String _extractedText = "";
-  bool _isLoading = false;
-  final List<String> priceIndicators = ["total", "amount", "rs", "₹"];
+class _RecpitPageState extends State<RecpitPage> {
+  /// Variable that will store the text extracted from the image
+  String _extractedText = '';
 
-  Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await ImagePicker().pickImage(source: source);
-    if (pickedFile == null) return;
-
-    setState(() {
-      _image = File(pickedFile.path);
-      _isLoading = true;
-    });
-
-    await _scanText();
-    setState(() => _isLoading = false);
-  }
-
-  Future<void> _scanText() async {
-    if (_image == null) return;
-
-    final inputImage = InputImage.fromFile(_image!);
-    final textRecognizer = TextRecognizer();
-    final recognizedText = await textRecognizer.processImage(inputImage);
-    await textRecognizer.close();
-
-    setState(() {
-      _extractedText = recognizedText.text;
-    });
-  }
-
-  List<double> _extractPrices() {
-    List<double> prices = [];
-    List<String> words = _extractedText.split(RegExp(r'\s+'));
-
-    for (int i = 0; i < words.length; i++) {
-      String word = words[i].replaceAll(RegExp(r'[^0-9₹.]'), "");
-
-      // Ensure i > 0 before checking the previous word
-      if (word.contains("₹") ||
-          (i > 0 && priceIndicators.contains(words[i - 1].toLowerCase()))) {
-        String amount = word.replaceAll("₹", "");
-        double? price = double.tryParse(amount);
-        if (price != null) prices.add(price);
-      }
+  /// Pick a image from a source
+  /// Requires a [source]
+  Future<File?> _pickerImage({required ImageSource source}) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+    if (image != null) {
+      return File(image.path);
     }
-    return prices;
+    return null;
+  }
+
+  /// Allow crop a image file
+  /// Requires a [imageFile]
+  Future<CroppedFile?> _cropImage({required File imageFile}) async {
+    CroppedFile? croppedfile = await ImageCropper().cropImage(
+      sourcePath: imageFile.path,
+      uiSettings: [
+        AndroidUiSettings(
+          aspectRatioPresets: [
+            CropAspectRatioPreset.square,
+            CropAspectRatioPreset.ratio3x2,
+            CropAspectRatioPreset.original,
+            CropAspectRatioPreset.ratio4x3,
+            CropAspectRatioPreset.ratio16x9
+          ],
+        ),
+        IOSUiSettings(
+          minimumAspectRatio: 1.0,
+        ),
+      ],
+    );
+
+    if (croppedfile != null) {
+      return croppedfile;
+    }
+
+    return null;
+  }
+
+  /// Create a instance from [TextRecognizer] and try extract text from a image
+  /// Requires a [imgPath]
+  Future<String> _recognizeTextFromImage({required String imgPath}) async {
+    /// Create an instance of TextRecognizer
+    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
+
+    /// Process image
+    final image = InputImage.fromFile(File(imgPath));
+    final recognized = await textRecognizer.processImage(image);
+
+    return recognized.text;
+  }
+
+  /// Allows you to select an image from a source
+  /// Crop the selected image
+  /// Processes the image and extracts found text information
+  /// Requires a [imageSource]
+  Future<void> _processImageExtractText({
+    required ImageSource imageSource,
+  }) async {
+    final imageFile = await _pickerImage(source: imageSource);
+
+    if (imageFile == null) return;
+
+    final croppedImage = await _cropImage(
+      imageFile: imageFile,
+    );
+
+    if (croppedImage == null) return;
+
+    final recognizedText = await _recognizeTextFromImage(
+      imgPath: croppedImage.path,
+    );
+
+    setState(() => _extractedText = recognizedText);
+  }
+
+  /// Copy the content from [_extractedText] to clip board and show a snackbar alert
+  void _copyToClipBoard() {
+    Clipboard.setData(ClipboardData(text: _extractedText));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied to Clipboard'),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    List<double> prices = _extractPrices();
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Scan Receipt")),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              if (_image != null) Image.file(_image!, height: 200),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(title: const Text('Flutter OCR')),
+      body: Column(
+        children: [
+          const Text(
+            'Select a Option',
+            style: TextStyle(fontSize: 22.0),
+          ),
+          const SizedBox(height: 10.0),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10.0,
+              horizontal: 20.0,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                PickerOptionWidget(
+                  label: 'From Gallery',
+                  color: Colors.blueAccent,
+                  icon: Icons.image_outlined,
+                  onTap: () => _processImageExtractText(
+                    imageSource: ImageSource.gallery,
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                PickerOptionWidget(
+                  label: 'From Camera',
+                  color: Colors.redAccent,
+                  icon: Icons.camera_alt_outlined,
+                  onTap: () => _processImageExtractText(
+                    imageSource: ImageSource.camera,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_extractedText.isNotEmpty) ...{
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 15.0,
+                horizontal: 10.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text("Camera"),
+                  const Text(
+                    'Previously Read',
+                    style: TextStyle(fontSize: 22.0),
                   ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.photo),
-                    label: const Text("Gallery"),
-                  ),
+                  IconButton(
+                    onPressed: _copyToClipBoard,
+                    icon: const Icon(Icons.copy),
+                  )
                 ],
               ),
-              if (_isLoading) const CircularProgressIndicator(),
-              if (_extractedText.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                const Text("Extracted Text:",
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration:
-                      BoxDecoration(borderRadius: BorderRadius.circular(5)),
-                  child:
-                      Text(_extractedText, style: const TextStyle(fontSize: 14)),
+            ),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
                 ),
-                if (prices.isNotEmpty) ...[
-                  const SizedBox(height: 10),
-                  const Text("Detected Prices:",
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: prices
-                        .map((e) => Text("₹${e.toStringAsFixed(2)}",
-                            style: const TextStyle(fontSize: 16)))
-                        .toList(),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      top: 10.0,
+                      bottom: 20.0,
+                    ),
+                    child: Text(_extractedText),
                   ),
-                ]
-              ],
-            ],
-          ),
-        ),
+                ),
+              ),
+            )
+          },
+        ],
       ),
     );
   }

@@ -4,6 +4,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/widgets_screen/adavance_calcander.dart';
@@ -351,33 +352,63 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                               key: Key(expense.id),
                               child: Bounceable(
                                 onTap: () {},
-                                child: Card(
-                                  color: Theme.of(context).cardColor,
-                                  elevation: 5,
-                                  child: ListTile(
-                                    isThreeLine: true,
-                                    trailing: IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () {
-                                        _showDeleteConfirmationDialog(
-                                            expense.id);
-                                      },
-                                    ),
-                                    leading: Column(
-                                      children: [
-                                        Text(expense.getFormattedDate()),
-                                        Text(expense.getFormattedTime()),
-                                      ],
-                                    ),
-                                    title: Text(
-                                      expense.category,
-                                      style: const TextStyle(
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(10),
+                                      margin: EdgeInsets.symmetric(
+                                        horizontal: 15.w,
+                                        vertical: 8.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.green[400]!,
+                                          width: 2,
+                                        ),
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      child: Text(
+                                        "₹ ${expense.amount.toStringAsFixed(0)}",
+                                        style: TextStyle(
+                                          fontSize: 18.spMin,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 15),
+                                        ),
+                                      ),
                                     ),
-                                    subtitle: Text(
-                                        'Amount: ₹${expense.amount.toStringAsFixed(2)}'),
-                                  ),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            expense.category,
+                                            style: TextStyle(
+                                              fontSize: 16.spMin,
+                                              fontWeight: FontWeight.bold,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            maxLines: 2,
+                                          ),
+                                          Text(
+                                            expense.getFormattedDate(),
+                                            style: TextStyle(
+                                              color: Colors.grey[500],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(width: 10.h),
+                                    IconButton(
+                                      icon: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () =>
+                                          _showDeleteConfirmationDialog(
+                                              expense.id),
+                                    ),
+                                  ],
                                 ),
                               ),
                             );
