@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -235,7 +235,7 @@ class BudgetCubit extends Cubit<Map<String, double>> {
 
   String? get _userId => _auth.currentUser?.uid;
 
-  // Fetch budget from Firebase
+  
   Future<void> fetchBudgets() async {
     if (_userId == null) {
       print("❌ User not logged in!");
@@ -248,7 +248,7 @@ class BudgetCubit extends Cubit<Map<String, double>> {
       final snapshot = await _firestore
           .collection('users')
           .doc(_userId)
-          .collection('budgets') // Fetch from user's budgets
+          .collection('budgets') 
           .get();
 
       final budgetData = <String, double>{};
@@ -263,7 +263,7 @@ class BudgetCubit extends Cubit<Map<String, double>> {
     }
   }
 
-  // Set budget in Firestore
+  
   Future<void> setBudget(String category, double amount) async {
     if (_userId == null) {
       print("❌ Cannot set budget, user not logged in!");
@@ -276,7 +276,7 @@ class BudgetCubit extends Cubit<Map<String, double>> {
       await _firestore
           .collection('users')
           .doc(_userId)
-          .collection('budgets') // Store in user's budgets
+          .collection('budgets') 
           .doc(category)
           .set({'amount': amount});
 
@@ -290,9 +290,9 @@ class BudgetCubit extends Cubit<Map<String, double>> {
     }
   }
 
-  // Get budget value for a category
+  
   double getBudget(String category) => state[category] ?? 0.0;
 }
 
-  // Set budget in Firestore for the logged-in user
+  
  
