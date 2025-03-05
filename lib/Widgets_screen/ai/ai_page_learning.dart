@@ -6,6 +6,8 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:try1/widgets_screen/ai/model/recepit.dart';
 
+import '../../generated/l10n.dart';
+
 class RecpitPage extends StatefulWidget {
   const RecpitPage({super.key});
 
@@ -98,8 +100,8 @@ class _RecpitPageState extends State<RecpitPage> {
     Clipboard.setData(ClipboardData(text: _extractedText));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Copied to Clipboard'),
+      SnackBar(
+        content: Text(S.of(context).copiedToClipboard),
       ),
     );
   }
@@ -107,11 +109,11 @@ class _RecpitPageState extends State<RecpitPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Flutter OCR')),
+      appBar: AppBar(title: Text(S.of(context).flutterOcr)),
       body: Column(
         children: [
-          const Text(
-            'Select a Option',
+          Text(
+            S.of(context).selectAOption,
             style: TextStyle(fontSize: 22.0),
           ),
           const SizedBox(height: 10.0),
@@ -124,7 +126,7 @@ class _RecpitPageState extends State<RecpitPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 PickerOptionWidget(
-                  label: 'From Gallery',
+                  label: S.of(context).fromGallery,
                   color: Colors.blueAccent,
                   icon: Icons.image_outlined,
                   onTap: () => _processImageExtractText(
@@ -133,7 +135,7 @@ class _RecpitPageState extends State<RecpitPage> {
                 ),
                 const SizedBox(width: 10.0),
                 PickerOptionWidget(
-                  label: 'From Camera',
+                  label: S.of(context).fromCamera,
                   color: Colors.redAccent,
                   icon: Icons.camera_alt_outlined,
                   onTap: () => _processImageExtractText(
@@ -152,8 +154,8 @@ class _RecpitPageState extends State<RecpitPage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Previously Read',
+                  Text(
+                    S.of(context).previouslyRead,
                     style: TextStyle(fontSize: 22.0),
                   ),
                   IconButton(

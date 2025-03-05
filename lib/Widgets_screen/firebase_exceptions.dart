@@ -1,12 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../generated/l10n.dart';
+
 enum AuthStatus {
   successful,
   wrongPassword,
   emailAlreadyExists,
   invalidEmail,
   weakPassword,
-  unknown, pending, initial, emptyEmail,
+  unknown,
+  pending,
+  initial,
+  emptyEmail,
 }
 
 class AuthExceptionHandler {
@@ -35,20 +40,19 @@ class AuthExceptionHandler {
     String errorMessage;
     switch (error) {
       case AuthStatus.invalidEmail:
-        errorMessage = "Your email address appears to be malformed.";
+        errorMessage = S.current.yourEmailAddressAppearsToBeMalformed;
         break;
       case AuthStatus.weakPassword:
-        errorMessage = "Your password should be at least 6 characters.";
+        errorMessage = S.current.yourPasswordShouldBeAtLeast6Characters;
         break;
       case AuthStatus.wrongPassword:
-        errorMessage = "Your email or password is wrong.";
+        errorMessage = S.current.yourEmailOrPasswordIsWrong;
         break;
       case AuthStatus.emailAlreadyExists:
-        errorMessage =
-            "The email address is already in use by another account.";
+        errorMessage = S.current.theEmailAddressIsAlreadyInUseByAnotherAccount;
         break;
       default:
-        errorMessage = "An error occured. Please try again later.";
+        errorMessage = S.current.anErrorOccuredPleaseTryAgainLater;
     }
     return errorMessage;
   }

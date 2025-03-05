@@ -10,6 +10,7 @@ import 'package:try1/utils/model.dart';
 import 'package:try1/widgets_screen/custom_barchart.dart';
 
 import '../../firebase_store/expense_store.dart';
+import '../../generated/l10n.dart';
 
 class ExpenseGraphPage extends StatefulWidget {
   const ExpenseGraphPage({super.key});
@@ -147,7 +148,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                                           ),
                                           actions: [
                                             TextButton(
-                                              child: const Text('Close'),
+                                              child: Text(S.of(context).close),
                                               onPressed: () {
                                                 Get.back();
                                               },
@@ -190,7 +191,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                       isBarchart = !isBarchart;
                     });
                   },
-                  child: Text(' Bar-Chart'),
+                  child: Text(S.of(context).barchart),
                 ),
               ),
               Expanded(

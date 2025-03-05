@@ -107,7 +107,6 @@ class MyMoneyManagerApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-
             debugShowCheckedModeBanner: false,
             theme: isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
             home: GetBuilder<InternetController>(
@@ -161,11 +160,11 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Confirm Exit'),
-            content:  Text(S.of(context).areYouSureYouWantToExit),
+            title: Text(S.of(context).confirmExit),
+            content: Text(S.of(context).areYouSureYouWantToExit),
             actions: <Widget>[
               TextButton(
-                child: const Text('Cancel'),
+                child: Text(S.of(context).cancel),
                 onPressed: () {
                   Get.back();
                 },
@@ -174,7 +173,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                 onPressed: () {
                   exit(0);
                 },
-                child: const Text('Exit'),
+                child: Text(S.of(context).exit),
               ),
             ],
           );
@@ -187,11 +186,11 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Confirm Exit'),
-            content: const Text('Are you sure you want to exit?'),
+            title: Text(S.of(context).confirmExit),
+            content: Text(S.of(context).areYouSureYouWantToExit),
             actions: <Widget>[
               TextButton(
-                child: const Text('Cancel'),
+                child: Text(S.of(context).cancel),
                 onPressed: () {
                   Get.back();
                 },
@@ -202,7 +201,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                   appDb.isLogin = false;
                   Get.off(() => LoginPage());
                 },
-                child: const Text('Exit'),
+                child: Text(S.of(context).exit),
               ),
             ],
           );
@@ -223,7 +222,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
               logout();
             },
           ),
-          title: const Text('Money Manager'),
+          title: Text(S.of(context).moneyManager),
           centerTitle: true,
           backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           actions: [
@@ -284,8 +283,8 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                         padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: Row(
                           children: [
-                            const Text(
-                              'Total Balance Left Is ',
+                            Text(
+                              S.of(context).totalBalanceLeftIs,
                               style: TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
@@ -336,7 +335,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                                       ),
                                       SizedBox(width: 7),
                                       Text(
-                                        'Income',
+                                        S.of(context).income,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16,
@@ -374,7 +373,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                                       ),
                                       SizedBox(width: 7),
                                       Text(
-                                        'Expenses',
+                                        S.of(context).expenses,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w500,
                                           fontSize: 16,
@@ -433,8 +432,8 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                                   Color(0xfff7892b)
                                 ])),
                         height: 70,
-                        child: const Text(
-                          'Add Transaction',
+                        child: Text(
+                          S.of(context).addTransaction,
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
                       ),
@@ -472,8 +471,8 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                                   Color(0xfff7892b)
                                 ])),
                         height: 70,
-                        child: const Text(
-                          'Expense Summary',
+                        child: Text(
+                          S.of(context).expenseSummary,
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
                       ),
@@ -506,8 +505,8 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                                   Color(0xfff7892b)
                                 ])),
                         height: 70,
-                        child: const Text(
-                          'Split',
+                        child: Text(
+                          S.of(context).split,
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
                       ),

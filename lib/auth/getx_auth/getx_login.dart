@@ -9,6 +9,8 @@ import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/main.dart';
 import 'package:try1/utils/utils.dart';
 
+import '../../generated/l10n.dart';
+
 class LoginController extends GetxController {
   var isLoading = false.obs;
 
@@ -19,23 +21,24 @@ class LoginController extends GetxController {
   TextEditingController get passwordController => _passwordController;
   Future<bool> validate(BuildContext context) async {
     if (loginController.emailController.text.isEmpty) {
-      showMessageTop(context, "Enter Email Address");
+      showMessageTop(context, S.of(context).enterEmailAddress);
       return false;
     }
 
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
         .hasMatch(loginController.emailController.text)) {
-      showMessageTop(context, "Enter a valid email address.");
+      showMessageTop(context, S.of(context).enterAValidEmailAddress);
       return false;
     }
 
     if (loginController.passwordController.text.isEmpty) {
-      showMessageTop(context, "Enter your password.");
+      showMessageTop(context, S.of(context).enterYourPassword);
       return false;
     }
 
     if (loginController.passwordController.text.length < 6) {
-      showMessageTop(context, "Password must be at least 6 characters long.");
+      showMessageTop(
+          context, S.of(context).passwordMustBeAtLeast6CharactersLong);
       return false;
     }
 
@@ -61,7 +64,6 @@ class LoginController extends GetxController {
 
             expenseStore.userId = user.uid;
 
-
             DocumentReference userDoc =
                 FirebaseFirestore.instance.collection('users').doc(user.uid);
 
@@ -86,7 +88,6 @@ class LoginController extends GetxController {
           }
           isLoading.value = false;
           Get.off(() => MoneyManagerHomePage());
-          
         },
       );
     } catch (error) {

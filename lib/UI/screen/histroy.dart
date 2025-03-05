@@ -12,6 +12,8 @@ import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/UI/screen/graph.dart';
 import 'package:try1/utils/model.dart';
 
+import '../../generated/l10n.dart';
+
 class ExpenseSummaryPage extends StatefulWidget {
   const ExpenseSummaryPage({super.key});
 
@@ -77,7 +79,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
         ],
         backgroundColor:
             ThemeProvider.themeOf(context).data.appBarTheme.backgroundColor,
-        title: const Text('Expense Summary'),
+        title: Text(S.of(context).expenseSummary),
         centerTitle: true,
       ),
       body: TabBarView(
@@ -89,14 +91,14 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
       ),
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: selectedIndex == 0 ? historyTabColor : graphTabColor,
-        items: const [
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.history),
-            label: 'History',
+            label: S.of(context).history,
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.graphic_eq),
-            label: 'Graph',
+            label: S.of(context).graph,
           ),
         ],
         currentIndex: selectedIndex,
@@ -154,8 +156,8 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                   const SizedBox(height: 10),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: const Text(
-                      'Total Balance is',
+                    child: Text(
+                      S.of(context).totalBalanceIs,
                       style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 16,
@@ -197,7 +199,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                                   ),
                                   SizedBox(width: 7),
                                   Text(
-                                    'Income',
+                                    S.of(context).income,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 16,
@@ -234,7 +236,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                                   ),
                                   SizedBox(width: 7),
                                   Text(
-                                    'Expenses',
+                                    S.of(context).expenses,
                                     style: TextStyle(
                                       fontWeight: FontWeight.w500,
                                       fontSize: 16,
@@ -267,7 +269,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                     return Center(child: Lottie.asset('images/loading.json'));
                   }
                   if (expenseStore.expenses.isEmpty) {
-                    return const Center(child: Text('No expenses found.'));
+                    return Center(child: Text(S.of(context).noExpensesFound));
                   }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -431,21 +433,21 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Deletion'),
+          title: Text(S.of(context).confirmDeletion),
           content: const Text('Are you sure you want to delete this?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(S.of(context).cancel),
               onPressed: () {
                 // Navigator.of(context).pop();
                 Get.back();
               },
             ),
             TextButton(
-              child: const Text('Delete'),
+              child: Text(S.of(context).delete),
               onPressed: () {
                 deleteExpense(id);
-                showToast("Transaction Deleted!");
+                showToast(S.of(context).transactionDeleted);
                 // Navigator.of(context).pop();
                 Get.back();
               },

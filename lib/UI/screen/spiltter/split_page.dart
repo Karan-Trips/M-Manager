@@ -7,6 +7,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../../generated/l10n.dart';
+
 class SplitExpensePage extends StatefulWidget {
   const SplitExpensePage({super.key});
 
@@ -54,7 +56,7 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
 
     if (totalAmount == null || friendsCount == 0) {
       Fluttertoast.showToast(
-          msg: "Please enter a valid amount and select friends.",
+          msg: S.of(context).pleaseEnterAValidAmountAndSelectFriends,
           gravity: ToastGravity.BOTTOM);
       return;
     }
@@ -113,7 +115,7 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Split Expense")),
+      appBar: AppBar(title: Text(S.of(context).splitExpense)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -122,11 +124,11 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
             Lottie.asset("images/moneysplit.json", height: 200.h),
             _buildTextField(
               controller: _amountController,
-              hintText: 'Enter Total Amount',
+              hintText: S.of(context).enterTotalAmount,
               keyboardType: TextInputType.number,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a valid amount';
+                  return S.of(context).pleaseEnterAValidAmount;
                 }
                 return null;
               },
@@ -137,7 +139,7 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: "Search Contacts",
+                labelText: S.of(context).searchContacts,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(15.r)),
                 ),
@@ -174,7 +176,7 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
             ElevatedButton.icon(
               onPressed: _splitAndNotify,
               icon: const Icon(Icons.send),
-              label: const Text("Split & Notify"),
+              label: Text(S.of(context).splitNotify),
               style: ElevatedButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(vertical: 15, horizontal: 30),

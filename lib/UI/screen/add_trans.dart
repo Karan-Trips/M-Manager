@@ -16,6 +16,8 @@ import 'package:try1/UI/cubits_app/cubits_state.dart';
 import 'package:try1/widgets_screen/ai/ai_page_learning.dart';
 import 'package:try1/widgets_screen/loading_screen.dart';
 
+import '../../generated/l10n.dart';
+
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
 
@@ -57,7 +59,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Add Expense'),
+            title: Text(S.of(context).addExpense),
             centerTitle: true,
             backgroundColor:
                 ThemeProvider.themeOf(context).data.appBarTheme.backgroundColor,
@@ -79,34 +81,36 @@ class _AddExpensePageState extends State<AddExpensePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 20),
-          _buildLabel('Amount:', isIOS),
+          _buildLabel(S.of(context).amount, isIOS),
           _buildTextField(
             controller: cubit.amountController,
-            hintText: 'Enter your Amount',
+            hintText: S.of(context).enterYourAmount,
             keyboardType: TextInputType.number,
             validator: cubit.validateAmount,
             isDarkMode: isDarkMode,
             isIOS: isIOS,
           ),
           SizedBox(height: 20.h),
-          _buildLabel('Category:', isIOS),
+          _buildLabel(S.of(context).category, isIOS),
           _buildDropdown(context, isDarkMode, isIOS),
           SizedBox(height: 20.h),
           _buildButton(
-              onPressed: cubit.saveExpense, text: 'Save Expense', isIOS: isIOS),
+              onPressed: cubit.saveExpense,
+              text: S.of(context).saveExpense,
+              isIOS: isIOS),
           SizedBox(height: 20.h),
           _buildButton(
               onPressed: cubit.toggleIncomeField,
-              text: 'Add Income',
+              text: S.of(context).addIncome,
               isIOS: isIOS),
           if (cubit.showIncomeTextField)
             Column(
               children: [
                 SizedBox(height: 20.h),
-                _buildLabel('Income:', isIOS),
+                _buildLabel(S.of(context).income, isIOS),
                 _buildTextField(
                     controller: cubit.incomeController,
-                    hintText: 'Enter the Income',
+                    hintText: S.of(context).enterTheIncome,
                     keyboardType: TextInputType.number,
                     validator: cubit.validateIncome,
                     isDarkMode: isDarkMode,
@@ -119,7 +123,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           ElevatedButton(
             onPressed: () {
               Fluttertoast.showToast(
-                msg: 'Under Development',
+                msg: S.of(context).underDevelopment,
                 toastLength: Toast.LENGTH_LONG,
                 gravity: ToastGravity.CENTER,
                 backgroundColor: Colors.yellow,

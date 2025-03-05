@@ -13,6 +13,7 @@ import 'package:try1/UI/screen/budget_page.dart';
 import 'package:try1/UI/screen/manage_categories.dart';
 import 'package:try1/UI/screen/spiltter/recipet.dart';
 import 'package:try1/firebase_store/expense_store.dart';
+import 'package:try1/generated/l10n.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -42,14 +43,15 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<void> generateAndSaveReceipt() async {
     try {
       Uint8List receiptBytes = await ReceiptPDF.generateReceiptAsBytes(
-        title: 'Expense Receipt',
+        title: S.of(context).expenseReceipt,
         date: DateTime.now().toString(),
         expenses: expenseStore.expenses,
         totalAmount: expenseStore.totalExpenses,
       );
 
       Directory? directory = await getExternalStorageDirectory();
-      if (directory == null) throw Exception("Failed to get storage directory");
+      if (directory == null)
+        throw Exception(S.of(context).failedToGetStorageDirectory);
 
       String filePath = "${directory.path}/receipt.pdf";
 
@@ -82,7 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Settings")),
+      appBar: AppBar(title: Text(S.of(context).settings)),
       body: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -134,13 +136,13 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(height: 20.h),
             ListTile(
               leading: Icon(Icons.receipt_long),
-              title: Text("Print Receipt"),
+              title: Text(S.of(context).printReceipt),
               onTap: generateAndSaveReceipt,
             ),
             Divider(),
             ListTile(
               leading: Icon(Icons.category),
-              title: Text("Manage Categories"),
+              title: Text(S.of(context).manageCategories),
               onTap: () {
                 Get.to(() => ManageCategoriesPage());
               },
@@ -148,7 +150,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Divider(),
             ListTile(
               leading: Icon(Icons.pie_chart),
-              title: Text("Set Budget"),
+              title: Text(S.of(context).setBudget),
               onTap: () {
                 Get.to(() => SetBudgetPage());
               },
@@ -158,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Divider(),
             ListTile(
               leading: Icon(Icons.logout),
-              title: Text("Logout"),
+              title: Text(S.of(context).logout),
               onTap: () {},
             ),
           ],
@@ -171,7 +173,8 @@ class _SettingsPageState extends State<SettingsPage> {
     return Theme.of(context).platform == TargetPlatform.iOS
         ? CupertinoListTile(
             leading: Icon(CupertinoIcons.bell),
-            title: Text("Notifications", style: TextStyle(color: Colors.white)),
+            title: Text(S.of(context).notifications,
+                style: TextStyle(color: Colors.white)),
             trailing: CupertinoSwitch(
               value: isNotificationEnabled,
               onChanged: (value) {
@@ -183,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
           )
         : SwitchListTile(
             secondary: Icon(Icons.notifications),
-            title: Text("Notifications"),
+            title: Text(S.of(context).notifications),
             value: isNotificationEnabled,
             onChanged: (value) {
               setState(() {
