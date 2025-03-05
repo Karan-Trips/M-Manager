@@ -63,7 +63,6 @@ abstract class _ExpenseStore with Store {
             (expense) => Expense.fromMap(expense as Map<String, dynamic>),
           ),
         );
-        print("Fetched expenses successfully.");
         isLoading = false;
       } else {
         print("User document does not exist.");

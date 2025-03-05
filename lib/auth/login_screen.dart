@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
-        Get.to(SignUpPage());
+        Get.to(() => SignUpPage());
         // Navigator.push(context,
         //     MaterialPageRoute(builder: (context) => const SignUpPage()));
       },
@@ -252,12 +252,8 @@ class _LoginPageState extends State<LoginPage> {
                       }),
                       InkWell(
                         onTap: () {
-                          Get.to(ResetPasswordScreen());
-                          // Navigator.push(
-                          //     context,
-                          //     MaterialPageRoute(
-                          //         builder: (context) =>
-                          //             const ResetPasswordScreen()));
+                          Get.to(() => ResetPasswordScreen());
+                     
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 15.h),

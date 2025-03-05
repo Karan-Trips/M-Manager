@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:lottie/lottie.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:try1/UI/screen/budget_page.dart';
@@ -14,8 +14,15 @@ import 'package:try1/UI/screen/manage_categories.dart';
 import 'package:try1/UI/screen/spiltter/recipet.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 
-class SettingsPage extends StatelessWidget {
+class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  bool isNotificationEnabled = false;
 
   Future<Map<String, String>> getUserDetails() async {
     User? user = FirebaseAuth.instance.currentUser;
@@ -34,7 +41,6 @@ class SettingsPage extends StatelessWidget {
 
   Future<void> generateAndSaveReceipt() async {
     try {
-      // Generate PDF as bytes
       Uint8List receiptBytes = await ReceiptPDF.generateReceiptAsBytes(
         title: 'Expense Receipt',
         date: DateTime.now().toString(),
@@ -45,10 +51,8 @@ class SettingsPage extends StatelessWidget {
       Directory? directory = await getExternalStorageDirectory();
       if (directory == null) throw Exception("Failed to get storage directory");
 
-      // Define file path
       String filePath = "${directory.path}/receipt.pdf";
 
-      // Save the file
       File file = File(filePath);
       await file.writeAsBytes(receiptBytes);
 
@@ -147,11 +151,7 @@ class SettingsPage extends StatelessWidget {
               },
             ),
             Divider(),
-            ListTile(
-              leading: Icon(Icons.notifications),
-              title: Text("Notifications"),
-              onTap: () {},
-            ),
+            _buildNotificationTile(), 
             Divider(),
             ListTile(
               leading: Icon(Icons.logout),
@@ -162,5 +162,31 @@ class SettingsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildNotificationTile() {
+    return Theme.of(context).platform == TargetPlatform.iOS
+        ? CupertinoListTile(
+            leading: Icon(CupertinoIcons.bell),
+            title: Text("Notifications", style: TextStyle(color: Colors.white)),
+            trailing: CupertinoSwitch(
+              value: isNotificationEnabled,
+              onChanged: (value) {
+                setState(() {
+                  isNotificationEnabled = value;
+                });
+              },
+            ),
+          )
+        : SwitchListTile(
+            secondary: Icon(Icons.notifications),
+            title: Text("Notifications"),
+            value: isNotificationEnabled,
+            onChanged: (value) {
+              setState(() {
+                isNotificationEnabled = value;
+              });
+            },
+          );
   }
 }

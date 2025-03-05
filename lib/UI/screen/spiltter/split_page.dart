@@ -70,7 +70,7 @@ class _SplitExpensePageState extends State<SplitExpensePage> {
   Future<void> _sendNotification(String title, String body) async {
     await _firebaseMessaging.subscribeToTopic("expense_notifications");
     Fluttertoast.showToast(
-        msg: "Notification sent: $title - $body", gravity: ToastGravity.BOTTOM);
+        msg: "Notification sent: $title - $body", gravity: ToastGravity.CENTER);
   }
 
   Widget _buildTextField({

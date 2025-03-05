@@ -61,8 +61,6 @@ class LoginController extends GetxController {
 
             expenseStore.userId = user.uid;
 
-            print(
-                "User ID: !!!!!!!!!!!!!!!!! ! ${expenseStore.userId}@@@@@@@@@@@");
 
             DocumentReference userDoc =
                 FirebaseFirestore.instance.collection('users').doc(user.uid);
@@ -87,16 +85,8 @@ class LoginController extends GetxController {
             print("User is null or UID is empty.");
           }
           isLoading.value = false;
-          Get.off(() => MyMoneyManagerApp());
-          // Get.off(MyMoneyManagerApp());
-          // Navigator.of(context).pushReplacement(
-          //   MaterialPageRoute(
-          //     builder: (context) => MyMoneyManagerApp(
-          //       expenseStore: expenseStore,
-          //       user: user,
-          //     ),
-          //   ),
-          // );
+          Get.off(() => MoneyManagerHomePage());
+          
         },
       );
     } catch (error) {
