@@ -50,59 +50,56 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AddExpenseCubit(),
-      child: Scaffold(
-        appBar: AppBar(title: Text("Manage Categories")),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: _categoryController,
-                decoration: InputDecoration(
-                  labelText: "Category Name",
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: _addCategory,
-                  ),
+    return Scaffold(
+      appBar: AppBar(title: Text("Manage Categories")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _categoryController,
+              decoration: InputDecoration(
+                labelText: "Category Name",
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: _addCategory,
                 ),
               ),
-              SizedBox(height: 20),
-              Expanded(
-                child: BlocBuilder<AddExpenseCubit, AddExpenseState>(
-                  builder: (context, state) {
-                    var categories = context.read<AddExpenseCubit>().categories;
-                    return ListView.builder(
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          child: ListTile(
-                            title: Text(categories[index]),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () =>
-                                      _editCategory(index, categories[index]),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.red),
-                                  onPressed: () =>
-                                      _deleteCategory(categories[index]),
-                                ),
-                              ],
-                            ),
+            ),
+            SizedBox(height: 20),
+            Expanded(
+              child: BlocBuilder<AddExpenseCubit, AddExpenseState>(
+                builder: (context, state) {
+                  var categories = context.watch<AddExpenseCubit>().categories;
+                  return ListView.builder(
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        child: ListTile(
+                          title: Text(categories[index]),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () =>
+                                    _editCategory(index, categories[index]),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () =>
+                                    _deleteCategory(categories[index]),
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    );
-                  },
-                ),
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

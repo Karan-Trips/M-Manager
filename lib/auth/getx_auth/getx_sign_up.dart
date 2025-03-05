@@ -38,11 +38,9 @@ class SignUpController extends GetxController {
   }
 
   Future<void> signUp(BuildContext context) async {
-    print("adsasd-----");
     if (await validateForm(context)) {
       isLoading.value = true;
       try {
-        print("asdasdasdasd");
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text.trim(),
@@ -53,7 +51,7 @@ class SignUpController extends GetxController {
         _passwordController.clear();
         _usernameController.clear();
         isLoading.value = false;
-        // Navigator.of(context).pop();
+
         Get.back();
       } catch (error) {
         isLoading.value = false;

@@ -3,7 +3,6 @@ description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 # publish_to: "none" # Remove this line if you wish to publish to pub.dev
-
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -31,12 +30,16 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^3.10.1
   cloud_firestore: ^5.6.2
-  
+
   flutter:
-   
+
     sdk: flutter
   flutter_launcher_icons: ^0.14.1
+  flutter_localizations:
+    sdk: flutter
   intl: ^0.19.0
+  intl_utils: ^2.8.4
+
   provider: ^6.1.1
   theme_provider: ^0.6.0
   firebase_auth: ^5.3.1
@@ -82,6 +85,7 @@ dependencies:
   path_provider: ^2.1.5
   open_file: ^3.5.10
   file_saver: ^0.2.14
+  flutter_localization: ^0.3.1
 
 dev_dependencies:
   build_runner: ^2.4.13
@@ -100,9 +104,6 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
-
-
-
   uses-material-design: true
   # To add assets to your application, add an assets section, like this:
   assets:
@@ -135,3 +136,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_intl:
+  enabled: true

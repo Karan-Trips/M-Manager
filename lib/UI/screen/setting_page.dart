@@ -105,9 +105,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     children: [
                       CircleAvatar(
                         radius: 30.r,
-                        backgroundColor: Colors.blueAccent,
-                        child:
-                            Icon(Icons.person, size: 30, color: Colors.white),
+                        backgroundColor: Colors.redAccent,
+                        child: Text(userData["name"]![0],
+                            style: TextStyle(
+                              fontSize: 24.sp,
+                              color: Colors.white,
+                            )),
                       ),
                       SizedBox(width: 16.w),
                       Column(
@@ -151,7 +154,7 @@ class _SettingsPageState extends State<SettingsPage> {
               },
             ),
             Divider(),
-            _buildNotificationTile(), 
+            _buildNotificationTile(),
             Divider(),
             ListTile(
               leading: Icon(Icons.logout),

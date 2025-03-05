@@ -4,7 +4,9 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_bounceable/flutter_bounceable.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,11 +14,12 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:lottie/lottie.dart';
+import 'package:try1/UI/cubits_app/cubits_app.dart';
 import 'package:try1/UI/screen/setting_page.dart';
 import 'package:try1/UI/screen/spiltter/split_page.dart';
+import 'package:try1/generated/l10n.dart';
 import 'package:try1/widgets_screen/internet_connectivity/internet_connectivity.dart';
 import 'package:try1/widgets_screen/no_internetpage.dart';
 import 'package:try1/app_db.dart';
@@ -33,43 +36,50 @@ import 'package:try1/UI/welcome_screen/intro_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   Get.put(InternetController());
   await Hive.initFlutter();
   await Hive.openBox<String>('authBox');
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await setuplocator();
   await locator.isReady<AppDb>();
 
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
-  ]).then((value) {
-    PushNotificationsManager().init();
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
+  ]);
 
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
+  PushNotificationsManager().init();
+  FlutterError.onError = (errorDetails) {
+    FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+  };
 
-    final user = FirebaseAuth.instance.currentUser;
-    print("!!!!!!!!!!!!!!!!!!YOUR UID: ${user?.uid}");
-    appDb.storeUserId(user?.uid ?? '');
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
 
-    final expenseStore = ExpenseStore();
+  final user = FirebaseAuth.instance.currentUser;
+  print("!!!!!!!!!!!!!!!!!! YOUR UID: ${user?.uid}");
+  await appDb.storeUserId(user?.uid ?? '');
 
-    runApp(
-      MyMoneyManagerApp(expenseStore: expenseStore, user: user),
-    );
-  });
+  final expenseStore = ExpenseStore();
+
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AddExpenseCubit()),
+        BlocProvider(create: (context) => BudgetCubit()),
+      ],
+      child: MyMoneyManagerApp(expenseStore: expenseStore, user: user),
+    ),
+  );
 }
 
 class MyMoneyManagerApp extends StatelessWidget {
@@ -91,18 +101,24 @@ class MyMoneyManagerApp extends StatelessWidget {
           final isDarkMode = brightness == Brightness.dark;
 
           return GetMaterialApp(
+            localizationsDelegates: const [
+              S.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+
             debugShowCheckedModeBanner: false,
             theme: isDarkMode ? AppTheme.dark().data : AppTheme.light().data,
             home: GetBuilder<InternetController>(
-              init: InternetController(),
               builder: (internetController) {
-                return internetController.isConnected.value
-                    ? (user != null
-                        ? const MoneyManagerHomePage()
-                        : appDb.isFirstTime
-                            ? const IntroPage()
-                            : LoginPage())
-                    : NoInternetPage();
+                if (internetController.isConnected.value) {
+                  return user != null
+                      ? const MoneyManagerHomePage()
+                      : (appDb.isFirstTime ? const IntroPage() : LoginPage());
+                } else {
+                  return NoInternetPage();
+                }
               },
             ),
           );
@@ -120,9 +136,6 @@ class MoneyManagerHomePage extends StatefulWidget {
 }
 
 class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
-  // final LocalAuthentication _localAuthService = LocalAuthentication();
-  // bool isAuthenticated = false;
-
   @override
   void initState() {
     super.initState();
@@ -149,7 +162,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Confirm Exit'),
-            content: const Text('Are you sure you want to exit?'),
+            content:  Text(S.of(context).areYouSureYouWantToExit),
             actions: <Widget>[
               TextButton(
                 child: const Text('Cancel'),
@@ -187,12 +200,7 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                 onPressed: () {
                   FirebaseAuth.instance.signOut();
                   appDb.isLogin = false;
-                  Get.off(LoginPage());
-
-                  // Navigator.pushReplacement(
-                  //   context,
-                  //   MaterialPageRoute(builder: (context) => const LoginPage()),
-                  // );
+                  Get.off(() => LoginPage());
                 },
                 child: const Text('Exit'),
               ),
@@ -401,11 +409,6 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                     InkWell(
                       onTap: () {
                         Get.to(() => const AddExpensePage());
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => const AddExpensePage()),
-                        // );
                       },
                       child: Container(
                         width: 250,

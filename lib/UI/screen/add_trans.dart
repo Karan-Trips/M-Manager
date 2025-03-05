@@ -16,7 +16,6 @@ import 'package:try1/UI/cubits_app/cubits_state.dart';
 import 'package:try1/widgets_screen/ai/ai_page_learning.dart';
 import 'package:try1/widgets_screen/loading_screen.dart';
 
-
 class AddExpensePage extends StatefulWidget {
   const AddExpensePage({super.key});
 
@@ -27,57 +26,47 @@ class AddExpensePage extends StatefulWidget {
 class _AddExpensePageState extends State<AddExpensePage> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => AddExpenseCubit(),
-      child: BlocConsumer<AddExpenseCubit, AddExpenseState>(
-        listener: (context, state) {
-          if (state is ExpenseSuccess) {
-            Fluttertoast.showToast(
-              msg: state.message,
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-            // Navigator.pop(context);
-            Get.back();
-          } else if (state is ExpenseFailure) {
-            Fluttertoast.showToast(
-              msg: state.error,
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0,
-            );
-          }
-        },
-        builder: (context, state) {
-          final cubit = context.read<AddExpenseCubit>();
-          final isDarkMode =
-              ThemeProvider.themeOf(context).data.brightness == Brightness.dark;
-
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Add Expense'),
-              centerTitle: true,
-              backgroundColor: ThemeProvider.themeOf(context)
-                  .data
-                  .appBarTheme
-                  .backgroundColor,
-            ),
-            body: state is ExpenseLoading
-                ? const Loading(status: true)
-                : _buildBody(
-                    context,
-                    cubit,
-                    isDarkMode,
-                    isIOS: Platform.isIOS ? true : false,
-                  ),
+    return BlocConsumer<AddExpenseCubit, AddExpenseState>(
+      listener: (context, state) {
+        if (state is ExpenseSuccess) {
+          Fluttertoast.showToast(
+            msg: state.message,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
           );
-        },
-      ),
+          Get.back();
+        } else if (state is ExpenseFailure) {
+          Fluttertoast.showToast(
+            msg: state.error,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+      },
+      builder: (context, state) {
+        final cubit = context.watch<AddExpenseCubit>();
+
+        final isDarkMode =
+            ThemeProvider.themeOf(context).data.brightness == Brightness.dark;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Add Expense'),
+            centerTitle: true,
+            backgroundColor:
+                ThemeProvider.themeOf(context).data.appBarTheme.backgroundColor,
+          ),
+          body: state is ExpenseLoading
+              ? const Loading(status: true)
+              : _buildBody(context, cubit, isDarkMode, isIOS: Platform.isIOS),
+        );
+      },
     );
   }
 
@@ -101,7 +90,7 @@ class _AddExpensePageState extends State<AddExpensePage> {
           ),
           SizedBox(height: 20.h),
           _buildLabel('Category:', isIOS),
-          _buildDropdown(cubit, isDarkMode, isIOS),
+          _buildDropdown(context, isDarkMode, isIOS),
           SizedBox(height: 20.h),
           _buildButton(
               onPressed: cubit.saveExpense, text: 'Save Expense', isIOS: isIOS),
@@ -129,6 +118,14 @@ class _AddExpensePageState extends State<AddExpensePage> {
           SizedBox(height: 20.h),
           ElevatedButton(
             onPressed: () {
+              Fluttertoast.showToast(
+                msg: 'Under Development',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER,
+                backgroundColor: Colors.yellow,
+                textColor: Colors.red,
+                fontSize: 16.sp,
+              );
               Get.to(() => RecpitPage());
             },
             child: Text(
@@ -188,29 +185,36 @@ class _AddExpensePageState extends State<AddExpensePage> {
           );
   }
 
-  Widget _buildDropdown(AddExpenseCubit cubit, bool isDarkMode, bool isIOS) {
-    return
-      
-        Container(
-      padding: EdgeInsets.symmetric(horizontal: 12.0.w, vertical: 8.0.h),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8.0.r),
-      ),
-      child: DropdownButton2<String>(
-        underline: Container(),
-        isExpanded: true,
-        value: cubit.selectedCategory,
-        onChanged: cubit.updateCategory,
-        items: cubit.categories
-            .map<DropdownMenuItem<String>>(
-              (value) => DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              ),
-            )
-            .toList(),
-      ),
+  Widget _buildDropdown(BuildContext context, bool isDarkMode, bool isIOS) {
+    return BlocBuilder<AddExpenseCubit, AddExpenseState>(
+      builder: (context, state) {
+        final cubit = context.watch<AddExpenseCubit>();
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.0.w, vertical: 8.0.h),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8.0.r),
+          ),
+          child: DropdownButton2<String>(
+            underline: Container(),
+            isExpanded: true,
+            value: cubit.categories.contains(cubit.selectedCategory)
+                ? cubit.selectedCategory
+                : cubit.categories.first,
+            onChanged: (value) {
+              cubit.updateCategory(value);
+            },
+            items: cubit.categories
+                .map<DropdownMenuItem<String>>(
+                  (value) => DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  ),
+                )
+                .toList(),
+          ),
+        );
+      },
     );
   }
 
