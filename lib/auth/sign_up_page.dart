@@ -5,6 +5,7 @@ import 'package:try1/widgets_screen/loading_screen.dart';
 import 'package:try1/auth/getx_auth/getx_sign_up.dart';
 import 'package:try1/utils/design_container.dart';
 
+import '../generated/l10n.dart';
 import 'login_screen.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -137,8 +138,8 @@ class SignUpPage extends StatelessWidget {
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
                 colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-        child: const Text(
-          'Register Now',
+        child: Text(
+          S.of(context).registerNow,
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
@@ -156,13 +157,13 @@ class SignUpPage extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 20),
         padding: const EdgeInsets.all(15),
         alignment: Alignment.bottomCenter,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text('Already have an account ?',
+            Text(S.of(context).alreadyHaveAnAccount,
                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
             SizedBox(width: 10),
-            Text('Login',
+            Text(S.of(context).login,
                 style: TextStyle(
                     color: Color(0xfff79c4f),
                     fontSize: 13,

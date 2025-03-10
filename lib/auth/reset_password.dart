@@ -9,6 +9,8 @@ import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/widgets_screen/firebase_exceptions.dart';
 import 'package:try1/utils/design_container.dart';
 
+import '../generated/l10n.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   static const String id = 'reset_password';
   const ResetPasswordScreen({super.key});
@@ -67,7 +69,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   SizedBox(height: 70.h),
                   Text(
-                    "Forgot Password",
+                    S.of(context).forgotPassword,
                     style: TextStyle(
                       fontSize: 35.sp,
                       fontWeight: FontWeight.bold,
@@ -75,14 +77,16 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   SizedBox(height: 10.h),
                   Text(
-                    'Please enter your email address to recover your password.',
+                    S
+                        .of(context)
+                        .pleaseEnterYourEmailAddressToRecoverYourPassword,
                     style: TextStyle(
                       fontSize: 15,
                     ),
                   ),
                   SizedBox(height: 40.h),
                   Text(
-                    'Email address',
+                    S.of(context).emailAddress,
                     style: TextStyle(
                       fontSize: 15.spMax,
                       fontWeight: FontWeight.bold,
@@ -94,7 +98,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     controller: _emailController,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Empty email';
+                        return S.of(context).emptyEmail;
                       }
                       return null;
                     },
@@ -132,7 +136,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       // fillColor: kPrimaryColor,
                       filled: true,
                       errorStyle: TextStyle(fontSize: 15.spMin),
-                      hintText: 'email address',
+                      hintText: S.of(context).emailAddress,
                       hintStyle: TextStyle(
                         fontSize: 17.spMin,
                         fontWeight: FontWeight.bold,
@@ -141,14 +145,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   ),
                   SizedBox(height: 16.h),
                   const Expanded(child: SizedBox()),
-                  _submitButton('Recover Password', () async {
+                  _submitButton(S.of(context).recoverPassword, () async {
                     if (_key.currentState!.validate()) {
                       final status = await resetPassword(
                           email: _emailController.text.trim());
                       if (status == AuthStatus.successful) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Password reset email sent'),
+                          SnackBar(
+                            content: Text(S.of(context).passwordResetEmailSent),
                           ),
                         );
                         // Navigator.pop(context);

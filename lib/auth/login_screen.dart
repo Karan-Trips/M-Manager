@@ -13,6 +13,8 @@ import 'package:try1/auth/reset_password.dart';
 import 'package:try1/auth/sign_up_page.dart';
 import 'package:try1/utils/design_container.dart';
 
+import '../generated/l10n.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -46,8 +48,9 @@ class _LoginPageState extends State<LoginPage> {
               controller: controller,
               obscureText: isPassword && !_isPasswordVisible.value,
               decoration: InputDecoration(
-                hintText:
-                    isPassword ? 'Enter your password' : 'Enter your email',
+                hintText: isPassword
+                    ? S.of(context).enterYourPassword
+                    : S.of(context).enterYourEmail,
                 hintStyle: TextStyle(color: Colors.grey, fontSize: 15.spMax),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0.r),
@@ -133,7 +136,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          Text('or'),
+          Text("or"),
           Expanded(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 10),
@@ -161,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
         margin: const EdgeInsets.symmetric(vertical: 20),
         padding: const EdgeInsets.all(15),
         alignment: Alignment.bottomCenter,
-        child: const Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
@@ -172,7 +175,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 10,
             ),
             Text(
-              'Register',
+              S.of(context).register,
               style: TextStyle(
                   color: Color(0xfff79c4f),
                   fontSize: 13,
@@ -187,7 +190,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget _title() {
     return RichText(
       textAlign: TextAlign.center,
-      text: const TextSpan(
+      text: TextSpan(
           text: 'M',
           style: TextStyle(
               fontSize: 32,
@@ -199,7 +202,7 @@ class _LoginPageState extends State<LoginPage> {
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'Manger',
+              text: S.of(context).manger,
               style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
             ),
           ]),
@@ -209,8 +212,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email id", false, loginController.emailController),
-        _entryField("Password", true, loginController.passwordController),
+        _entryField(
+            S.of(context).emailId, false, loginController.emailController),
+        _entryField(
+            S.of(context).password, true, loginController.passwordController),
       ],
     );
   }
@@ -244,7 +249,7 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(height: 50.h),
                       _emailPasswordWidget(),
                       SizedBox(height: 20.h),
-                      _submitButton('Login', () async {
+                      _submitButton(S.of(context).login, () async {
                         bool isValid = await loginController.validate(context);
                         if (isValid) {
                           return loginController.login(context);
@@ -253,13 +258,12 @@ class _LoginPageState extends State<LoginPage> {
                       InkWell(
                         onTap: () {
                           Get.to(() => ResetPasswordScreen());
-                     
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 15.h),
                           alignment: Alignment.centerRight,
                           child: Text(
-                            'Forgot Password ?',
+                            S.of(context).forgotPassword,
                             style: TextStyle(
                               fontSize: 14.spMax,
                               fontWeight: FontWeight.w500,

@@ -8,6 +8,8 @@ import 'package:try1/UI/cubits_app/cubits_state.dart';
 import 'package:try1/app_db.dart';
 import 'package:try1/utils/model.dart';
 
+import '../../generated/l10n.dart';
+
 class AddExpenseCubit extends Cubit<AddExpenseState> {
   AddExpenseCubit() : super(AddExpenseInitial());
 
@@ -58,9 +60,9 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     if (value == null ||
         double.tryParse(value) == null ||
         double.parse(value) <= 0) {
-      return 'Please enter a valid amount';
+      return S.current.pleaseEnterAValidAmount;
     } else if (value.length > 8) {
-      return 'Amount is too large to handle';
+      return S.current.amountIsTooLargeToHandle;
     }
     return null;
   }
@@ -69,9 +71,9 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     if (value == null ||
         double.tryParse(value) == null ||
         double.parse(value) <= 0) {
-      return 'Please enter a valid income';
+      return S.current.pleaseEnterAValidIncome;
     } else if (value.length > 8) {
-      return 'Amount is too large to handle';
+      return S.current.amountIsTooLargeToHandle;
     }
     return null;
   }
@@ -81,7 +83,7 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     try {
       final userId = await appDb.getUserId();
       if (userId == null) {
-        emit(ExpenseFailure('User ID not found.'));
+        emit(ExpenseFailure(S.current.userIdNotFound));
         return;
       }
 
@@ -96,10 +98,10 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
             .toList();
         emit(ExpenseFetched(expenses));
       } else {
-        emit(ExpenseFailure('User document does not exist.'));
+        emit(ExpenseFailure(S.current.userDocumentDoesNotExist));
       }
     } catch (error) {
-      emit(ExpenseFailure('Error fetching expenses: $error'));
+      emit(ExpenseFailure(S.current.errorFetchingExpensesError));
     }
   }
 
@@ -108,7 +110,7 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     try {
       final userId = await appDb.getUserId();
       if (userId == null) {
-        emit(ExpenseFailure('User ID not found.'));
+        emit(ExpenseFailure(S.current.userIdNotFound));
         return;
       }
 
@@ -120,10 +122,10 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
         double totalIncome = docSnapshot['income'] ?? 0.0;
         emit(IncomeFetched(totalIncome));
       } else {
-        emit(ExpenseFailure('User document does not exist.'));
+        emit(ExpenseFailure(S.current.userDocumentDoesNotExist));
       }
     } catch (error) {
-      emit(ExpenseFailure('Error fetching income: $error'));
+      emit(ExpenseFailure(S.current.errorFetchingIncomeError));
     }
   }
 
@@ -133,7 +135,7 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
       try {
         final userId = await appDb.getUserId();
         if (userId == null) {
-          emit(ExpenseFailure('User ID not found.'));
+          emit(ExpenseFailure(S.current.userIdNotFound));
           return;
         }
 
@@ -155,12 +157,12 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
           'expense': FieldValue.arrayUnion([expense.toMap()]),
         });
 
-        emit(ExpenseSuccess('Transaction Saved!'));
+        emit(ExpenseSuccess(S.current.transactionSaved));
       } catch (e) {
-        emit(ExpenseFailure('Failed to save expense: ${e.toString()}'));
+        emit(ExpenseFailure(S.current.failedToSaveExpenseEtostring));
       }
     } else {
-      emit(ExpenseFailure('Invalid input for amount'));
+      emit(ExpenseFailure(S.current.invalidInputForAmount));
     }
   }
 
@@ -169,7 +171,7 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
     try {
       final userId = await appDb.getUserId();
       if (userId == null) {
-        emit(ExpenseFailure('User ID not found.'));
+        emit(ExpenseFailure(S.current.userIdNotFound));
         return;
       }
 
@@ -189,15 +191,15 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
           await userDoc.update({
             'expense': FieldValue.arrayRemove([expenseToDelete]),
           });
-          emit(ExpenseSuccess('Expense deleted successfully.'));
+          emit(ExpenseSuccess(S.current.expenseDeletedSuccessfully));
         } else {
-          emit(ExpenseFailure('Expense with the given ID not found.'));
+          emit(ExpenseFailure(S.current.expenseWithTheGivenIdNotFound));
         }
       } else {
-        emit(ExpenseFailure('User document does not exist.'));
+        emit(ExpenseFailure(S.current.userDocumentDoesNotExist));
       }
     } catch (error) {
-      emit(ExpenseFailure('Error deleting expense: $error'));
+      emit(ExpenseFailure(S.current.errorDeletingExpenseError));
     }
   }
 
@@ -207,7 +209,7 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
       try {
         final userId = await appDb.getUserId();
         if (userId == null) {
-          emit(ExpenseFailure('User ID not found. Please sign in again.'));
+          emit(ExpenseFailure(S.current.userIdNotFoundPleaseSignInAgain));
           return;
         }
 
@@ -217,13 +219,13 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
             FirebaseFirestore.instance.collection('users').doc(userId);
 
         await userDoc.update({'income': newIncomeValue});
-        emit(ExpenseSuccess('Income value updated successfully'));
+        emit(ExpenseSuccess(S.current.incomeValueUpdatedSuccessfully));
         incomeController.clear();
       } catch (e) {
-        emit(ExpenseFailure('Failed to update income: ${e.toString()}'));
+        emit(ExpenseFailure(S.current.failedToUpdateIncomeEtostring));
       }
     } else {
-      emit(ExpenseFailure('Invalid input for income'));
+      emit(ExpenseFailure(S.current.invalidInputForIncome));
     }
   }
 }

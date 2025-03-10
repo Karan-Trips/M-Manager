@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:try1/UI/cubits_app/cubits_app.dart';
 import 'package:try1/UI/cubits_app/cubits_state.dart';
 
+import '../../generated/l10n.dart';
+
 class ManageCategoriesPage extends StatefulWidget {
   const ManageCategoriesPage({super.key});
 
@@ -26,7 +28,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Edit Category"),
+        title: Text(S.of(context).editCategory),
         content: TextField(controller: _categoryController),
         actions: [
           TextButton(
@@ -37,7 +39,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
                   .addCategory(_categoryController.text.trim());
               Navigator.pop(context);
             },
-            child: Text("Save"),
+            child: Text(S.of(context).save),
           ),
         ],
       ),
@@ -51,7 +53,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Manage Categories")),
+      appBar: AppBar(title: Text(S.of(context).manageCategories)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -59,7 +61,7 @@ class _ManageCategoriesPageState extends State<ManageCategoriesPage> {
             TextField(
               controller: _categoryController,
               decoration: InputDecoration(
-                labelText: "Category Name",
+                labelText: S.of(context).categoryName,
                 suffixIcon: IconButton(
                   icon: Icon(Icons.add),
                   onPressed: _addCategory,

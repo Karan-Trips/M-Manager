@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:try1/utils/utils.dart';
 
+import '../../generated/l10n.dart';
+
 class SignUpController extends GetxController {
   var isLoading = false.obs;
   final _usernameController = TextEditingController();
@@ -18,19 +20,19 @@ class SignUpController extends GetxController {
   Future<bool> validateForm(BuildContext context) async {
     if (_usernameController.text.isEmpty) {
       print("asdasd_)___");
-      showMessageTop(context, 'Enter the UserName');
+      showMessageTop(context, S.of(context).enterTheUsername);
       return false;
     } else if (_emailController.text.isEmpty) {
-      showMessageTop(context, 'Enter Email Address');
+      showMessageTop(context, S.of(context).enterEmailAddress);
 
       return false;
     } else if (_passwordController.text.isEmpty) {
-      showMessageTop(context, 'Enter your password.');
+      showMessageTop(context, S.of(context).enterYourPassword);
 
       return false;
     } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
         .hasMatch(_emailController.text)) {
-      showMessageTop(context, 'Enter a valid email address.');
+      showMessageTop(context, S.of(context).enterAValidEmailAddress);
 
       return false;
     }
@@ -55,7 +57,7 @@ class SignUpController extends GetxController {
         Get.back();
       } catch (error) {
         isLoading.value = false;
-        showMessageTop(context, 'Signup failed ${error.toString()}');
+        showMessageTop(context, S.of(context).signupFailedErrortostring);
       }
     }
   }
