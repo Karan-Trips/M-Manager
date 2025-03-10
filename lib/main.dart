@@ -101,6 +101,10 @@ class MyMoneyManagerApp extends StatelessWidget {
           final isDarkMode = brightness == Brightness.dark;
 
           return GetMaterialApp(
+            supportedLocales: const [
+              Locale('en'),
+              Locale('hi'),
+            ],
             localizationsDelegates: const [
               S.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -442,11 +446,6 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage> {
                     InkWell(
                       onTap: () {
                         Get.to(() => const ExpenseSummaryPage());
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //       builder: (context) => const ExpenseSummaryPage()),
-                        // );
                       },
                       child: Container(
                         width: 250,

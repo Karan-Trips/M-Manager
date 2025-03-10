@@ -11,9 +11,11 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:try1/UI/screen/budget_page.dart';
 import 'package:try1/UI/screen/manage_categories.dart';
-import 'package:try1/UI/screen/spiltter/recipet.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/generated/l10n.dart';
+
+import '../../auth/login_screen.dart';
+import 'spiltter/recipet.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -50,8 +52,9 @@ class _SettingsPageState extends State<SettingsPage> {
       );
 
       Directory? directory = await getExternalStorageDirectory();
-      if (directory == null)
+      if (directory == null) {
         throw Exception(S.of(context).failedToGetStorageDirectory);
+      }
 
       String filePath = "${directory.path}/receipt.pdf";
 
@@ -81,10 +84,26 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  void changeLanguage(Locale locale) {
+    Get.updateLocale(locale);
+    Fluttertoast.showToast(
+      msg: 'Language changed to ${locale.languageCode.toUpperCase()}',
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.blue,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(S.of(context).settings)),
+      appBar: AppBar(
+        title: Text(S.of(context).settings),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -108,24 +127,33 @@ class _SettingsPageState extends State<SettingsPage> {
                       CircleAvatar(
                         radius: 30.r,
                         backgroundColor: Colors.redAccent,
-                        child: Text(userData["name"]![0],
-                            style: TextStyle(
-                              fontSize: 24.sp,
-                              color: Colors.white,
-                            )),
+                        child: Text(
+                          userData["name"]![0],
+                          style: TextStyle(
+                            fontSize: 24.sp,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                       SizedBox(width: 16.w),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(userData["name"]!,
-                              style: TextStyle(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold)),
+                          Text(
+                            userData["name"]!,
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           SizedBox(height: 4.h),
-                          Text(userData["email"]!,
-                              style: TextStyle(
-                                  fontSize: 14.sp, color: Colors.grey)),
+                          Text(
+                            userData["email"]!,
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ],
                       ),
                     ],
@@ -143,25 +171,30 @@ class _SettingsPageState extends State<SettingsPage> {
             ListTile(
               leading: Icon(Icons.category),
               title: Text(S.of(context).manageCategories),
-              onTap: () {
-                Get.to(() => ManageCategoriesPage());
-              },
+              onTap: () => Get.to(() => ManageCategoriesPage()),
             ),
             Divider(),
             ListTile(
               leading: Icon(Icons.pie_chart),
               title: Text(S.of(context).setBudget),
-              onTap: () {
-                Get.to(() => SetBudgetPage());
-              },
+              onTap: () => Get.to(() => SetBudgetPage()),
             ),
             Divider(),
             _buildNotificationTile(),
             Divider(),
             ListTile(
+              leading: Icon(Icons.language),
+              title: Text('Change Language'),
+              onTap: () => _showLanguageSelectionDialog(context),
+            ),
+            Divider(),
+            ListTile(
               leading: Icon(Icons.logout),
               title: Text(S.of(context).logout),
-              onTap: () {},
+              onTap: () {
+                FirebaseAuth.instance.signOut();
+                Get.offAll(() => LoginPage());
+              },
             ),
           ],
         ),
@@ -170,29 +203,47 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget _buildNotificationTile() {
-    return Theme.of(context).platform == TargetPlatform.iOS
-        ? CupertinoListTile(
-            leading: Icon(CupertinoIcons.bell),
-            title: Text(S.of(context).notifications,
-                style: TextStyle(color: Colors.white)),
-            trailing: CupertinoSwitch(
-              value: isNotificationEnabled,
-              onChanged: (value) {
-                setState(() {
-                  isNotificationEnabled = value;
-                });
-              },
-            ),
-          )
-        : SwitchListTile(
-            secondary: Icon(Icons.notifications),
-            title: Text(S.of(context).notifications),
-            value: isNotificationEnabled,
-            onChanged: (value) {
-              setState(() {
-                isNotificationEnabled = value;
-              });
-            },
-          );
+    return SwitchListTile(
+      secondary: Icon(Icons.notifications),
+      title: Text(S.of(context).notifications),
+      value: isNotificationEnabled,
+      onChanged: (value) {
+        setState(() {
+          isNotificationEnabled = value;
+        });
+      },
+    );
+  }
+
+  void _showLanguageSelectionDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Select Language'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(Icons.language),
+                title: Text("English"),
+                onTap: () {
+                  changeLanguage(Locale('en'));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.language),
+                title: Text("हिन्दी"),
+                onTap: () {
+                  changeLanguage(Locale('hi'));
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

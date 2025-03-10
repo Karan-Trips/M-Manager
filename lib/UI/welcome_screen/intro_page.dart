@@ -9,8 +9,6 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 import 'package:try1/app_db.dart';
 import 'package:try1/auth/login_screen.dart';
 
-import 'package:try1/main.dart';
-
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
 
