@@ -94,7 +94,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
               );
               image.add(category);
               legendTitles.add(
-                '$category: ₹${amount.toStringAsFixed(2)} ($count entries)',
+                '$category: ₹${amount.toStringAsFixed(2)} ($count times)',
               );
               index++;
             }
@@ -168,7 +168,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                               '${calculatePercenategeTotal()}% of Income',
                               style: TextStyle(
                                 fontSize: 16.spMax,
-                                color: isDarkMode ? Colors.black : Colors.white,
+                                color: isDarkMode ? Colors.white : Colors.black,
                               ),
                             ),
                           ),
@@ -210,7 +210,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                           legendTitles[index],
                           style: TextStyle(
                             fontSize: 14.spMax,
-                            color: isDarkMode ? Colors.black : Colors.white,
+                            color: isDarkMode ? Colors.white : Colors.black,
                           ),
                         ),
                         CircleAvatar(

@@ -94,7 +94,7 @@ class LoginController extends GetxController {
       isLoading.value = false;
       print('Login failed: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $error')),
+        SnackBar(content: Text('Login failed:')),
       );
     }
   }

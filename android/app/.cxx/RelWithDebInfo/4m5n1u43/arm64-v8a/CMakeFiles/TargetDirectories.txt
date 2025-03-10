@@ -1,0 +1,2 @@
+/Users/hyperlink/Desktop/Projects/M-Manager/android/app/.cxx/RelWithDebInfo/4m5n1u43/arm64-v8a/CMakeFiles/rebuild_cache.dir
+/Users/hyperlink/Desktop/Projects/M-Manager/android/app/.cxx/RelWithDebInfo/4m5n1u43/arm64-v8a/CMakeFiles/edit_cache.dir

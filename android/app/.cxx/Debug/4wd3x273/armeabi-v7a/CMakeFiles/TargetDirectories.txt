@@ -1,0 +1,2 @@
+/Users/hyperlink/Desktop/Projects/M-Manager/android/app/.cxx/Debug/4wd3x273/armeabi-v7a/CMakeFiles/rebuild_cache.dir
+/Users/hyperlink/Desktop/Projects/M-Manager/android/app/.cxx/Debug/4wd3x273/armeabi-v7a/CMakeFiles/edit_cache.dir
