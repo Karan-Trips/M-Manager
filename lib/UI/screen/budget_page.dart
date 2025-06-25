@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:try1/UI/cubits_app/cubits_app.dart';
+import 'package:try1/ui/cubits_app/cubits_app.dart';
 
 class SetBudgetPage extends StatefulWidget {
   const SetBudgetPage({super.key});

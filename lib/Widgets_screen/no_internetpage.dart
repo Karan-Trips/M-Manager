@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:try1/widgets_screen/internet_connectivity/internet_connectivity.dart';
 
 import '../generated/l10n.dart';
 

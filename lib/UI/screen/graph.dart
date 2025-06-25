@@ -210,7 +210,7 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                           legendTitles[index],
                           style: TextStyle(
                             fontSize: 14.spMax,
-                            color: isDarkMode ? Colors.white : Colors.black,
+                            color: isDarkMode ? Colors.black : Colors.white,
                           ),
                         ),
                         CircleAvatar(

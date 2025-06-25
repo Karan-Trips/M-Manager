@@ -8,6 +8,7 @@ import 'package:try1/app_db.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/main.dart';
 import 'package:try1/utils/utils.dart';
+import 'package:try1/widgets_screen/show_message.dart';
 
 import '../../generated/l10n.dart';
 
@@ -45,7 +46,7 @@ class LoginController extends GetxController {
     return true;
   }
 
-  Future<void> login(BuildContext context) async {
+  Future<void> login() async {
     isLoading.value = true;
     try {
       await FirebaseAuth.instance
@@ -93,9 +94,7 @@ class LoginController extends GetxController {
     } catch (error) {
       isLoading.value = false;
       print('Login failed: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed:')),
-      );
+      showMessage('Login failed:$error', type: MessageType.error);
     }
   }
 }

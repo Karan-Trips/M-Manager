@@ -86,7 +86,7 @@ class CategoryBarChart extends StatelessWidget {
               tooltipBorder: BorderSide.none,
               tooltipHorizontalAlignment: FLHorizontalAlignment.center,
               direction: TooltipDirection.auto,
-              tooltipRoundedRadius: 15.r,
+              // tooltipRoundedRadius: 15.r,
               tooltipMargin: 8,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 return BarTooltipItem(

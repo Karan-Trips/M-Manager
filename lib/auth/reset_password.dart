@@ -6,8 +6,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:theme_provider/theme_provider.dart';
+import 'package:try1/auth/getx_auth/getx_login.dart';
 import 'package:try1/widgets_screen/firebase_exceptions.dart';
 import 'package:try1/utils/design_container.dart';
+import 'package:try1/widgets_screen/loading_screen.dart';
+import 'package:try1/widgets_screen/show_message.dart';
 
 import '../generated/l10n.dart';
 
@@ -23,7 +26,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final _key = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   static final auth = FirebaseAuth.instance;
-  static late AuthStatus _status;
   bool isDarkMode = false;
 
   @override
@@ -33,13 +35,18 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   }
 
   Future<AuthStatus> resetPassword({required String email}) async {
-    await auth
-        .sendPasswordResetEmail(email: email)
-        .then((value) => _status = AuthStatus.successful)
-        .catchError(
-            (e) => _status = AuthExceptionHandler.handleAuthException(e));
+    loginController.isLoading.value = true;
 
-    return _status;
+    try {
+      await auth.sendPasswordResetEmail(email: email);
+      return AuthStatus.successful;
+    } on FirebaseAuthException catch (e) {
+      return AuthExceptionHandler.handleAuthException(e);
+    } catch (_) {
+      return AuthStatus.unknown;
+    } finally {
+      loginController.isLoading.value = false;
+    }
   }
 
   @override
@@ -48,132 +55,129 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     isDarkMode =
         ThemeProvider.themeOf(context).data.brightness == Brightness.dark;
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned(
-              top: -height * .15,
-              right: -MediaQuery.of(context).size.width * .4,
-              child: const BezierContainer()),
-          Padding(
-            padding: const EdgeInsets.only(
-                left: 16.0, right: 16.0, top: 50.0, bottom: 25.0),
-            child: Form(
-              key: _key,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    // Navigator.pop(context),
-                    child: const Icon(Icons.close),
-                  ),
-                  SizedBox(height: 70.h),
-                  Text(
-                    S.of(context).forgotPassword,
-                    style: TextStyle(
-                      fontSize: 35.sp,
-                      fontWeight: FontWeight.bold,
+      body: Loading(
+        status: loginController.isLoading.value,
+        child: Stack(
+          children: [
+            Positioned(
+                top: -height * .15,
+                right: -MediaQuery.of(context).size.width * .4,
+                child: const BezierContainer()),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 16.0, right: 16.0, top: 50.0, bottom: 25.0),
+              child: Form(
+                key: _key,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      // Navigator.pop(context),
+                      child: const Icon(Icons.close),
                     ),
-                  ),
-                  SizedBox(height: 10.h),
-                  Text(
-                    S
-                        .of(context)
-                        .pleaseEnterYourEmailAddressToRecoverYourPassword,
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                  SizedBox(height: 40.h),
-                  Text(
-                    S.of(context).emailAddress,
-                    style: TextStyle(
-                      fontSize: 15.spMax,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-                  TextFormField(
-                    obscureText: false,
-                    controller: _emailController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return S.of(context).emptyEmail;
-                      }
-                      return null;
-                    },
-                    autofocus: false,
-                    style: TextStyle(
-                      fontSize: 15.sp,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: InputDecoration(
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 20.h, horizontal: 20.w),
-                      border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(15.0.r))),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 1.w,
-                        ),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(
-                            30.0.r,
-                          ),
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(width: 2.0.w),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(
-                            30.0.r,
-                          ),
-                        ),
-                      ),
-
-                      isDense: true,
-                      // fillColor: kPrimaryColor,
-                      filled: true,
-                      errorStyle: TextStyle(fontSize: 15.spMin),
-                      hintText: S.of(context).emailAddress,
-                      hintStyle: TextStyle(
-                        fontSize: 17.spMin,
+                    SizedBox(height: 70.h),
+                    Text(
+                      S.of(context).forgotPassword,
+                      style: TextStyle(
+                        fontSize: 35.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                  SizedBox(height: 16.h),
-                  const Expanded(child: SizedBox()),
-                  _submitButton(S.of(context).recoverPassword, () async {
-                    if (_key.currentState!.validate()) {
-                      final status = await resetPassword(
-                          email: _emailController.text.trim());
-                      if (status == AuthStatus.successful) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(S.of(context).passwordResetEmailSent),
+                    SizedBox(height: 10.h),
+                    Text(
+                      S
+                          .of(context)
+                          .pleaseEnterYourEmailAddressToRecoverYourPassword,
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                    SizedBox(height: 40.h),
+                    Text(
+                      S.of(context).emailAddress,
+                      style: TextStyle(
+                        fontSize: 15.spMax,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10.h),
+                    TextFormField(
+                      obscureText: false,
+                      controller: _emailController,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return S.of(context).emptyEmail;
+                        }
+                        return null;
+                      },
+                      autofocus: false,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 20.h, horizontal: 20.w),
+                        border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(15.0.r))),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            width: 1.w,
                           ),
-                        );
-                        // Navigator.pop(context);
-                        Get.back();
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                                AuthExceptionHandler.generateErrorMessage(
-                                    status)),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(
+                              30.0.r,
+                            ),
                           ),
-                        );
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(width: 2.0.w),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(
+                              30.0.r,
+                            ),
+                          ),
+                        ),
+
+                        isDense: true,
+                        // fillColor: kPrimaryColor,
+                        filled: true,
+                        errorStyle: TextStyle(fontSize: 15.spMin),
+                        hintText: S.of(context).emailAddress,
+                        hintStyle: TextStyle(
+                          fontSize: 17.spMin,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    const Expanded(child: SizedBox()),
+                    _submitButton(S.of(context).recoverPassword, () async {
+                      if (_key.currentState!.validate()) {
+                        final status = await resetPassword(
+                            email: _emailController.text.trim());
+                        if (status == AuthStatus.successful) {
+                          showMessage(S.of(context).passwordResetEmailSent,
+                              type: MessageType.success);
+
+                          Get.back();
+                        } else {
+                          showMessage(
+                            AuthExceptionHandler.generateErrorMessage(status),
+                            type: MessageType.error,
+                          );
+                        }
                       }
-                    }
-                  }),
-                  SizedBox(height: 40.h),
-                ],
+                    }),
+                    SizedBox(height: 40.h),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

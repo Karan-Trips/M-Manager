@@ -8,8 +8,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:try1/UI/screen/budget_page.dart';
-import 'package:try1/UI/screen/manage_categories.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:try1/ui/screen/budget_page.dart';
+import 'package:try1/ui/screen/manage_categories.dart';
 import 'package:try1/firebase_store/expense_store.dart';
 import 'package:try1/generated/l10n.dart';
 
@@ -50,19 +51,46 @@ class _SettingsPageState extends State<SettingsPage> {
         totalAmount: expenseStore.totalExpenses,
       );
 
-      Directory? directory = await getExternalStorageDirectory();
+      Directory? directory;
+
+      if (Platform.isAndroid) {
+        // Request storage permission
+        var status = await Permission.storage.request();
+        if (!status.isGranted) {
+          Fluttertoast.showToast(msg: 'Storage permission not granted');
+          return;
+        }
+
+        // Try to use standard download folder
+        directory = Directory('/storage/emulated/0/Download');
+
+        // Fallback if directory doesn't exist
+        if (!await directory.exists()) {
+          directory = await getExternalStorageDirectory();
+        }
+      } else if (Platform.isIOS ||
+          Platform.isMacOS ||
+          Platform.isLinux ||
+          Platform.isWindows) {
+        directory = await getApplicationDocumentsDirectory();
+      } else {
+        throw UnsupportedError("Unsupported platform");
+      }
+
       if (directory == null) {
         throw Exception(S.of(context).failedToGetStorageDirectory);
       }
 
-      String filePath = "${directory.path}/receipt.pdf";
+      // Create unique file path
+      String filePath =
+          "${directory.path}/receipt_${DateTime.now().millisecondsSinceEpoch}.pdf";
 
       File file = File(filePath);
       await file.writeAsBytes(receiptBytes);
 
       Fluttertoast.showToast(
-        msg: 'Receipt saved successfully at $filePath',
-        toastLength: Toast.LENGTH_SHORT,
+        msg: 'Receipt saved successfully at:\n$filePath',
+        toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.green,
         textColor: Colors.white,
@@ -71,10 +99,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
       OpenFile.open(filePath);
     } catch (e) {
-      print('$e');
+      print('❌ Error generating receipt: $e');
       Fluttertoast.showToast(
         msg: 'Failed to generate receipt: $e',
-        toastLength: Toast.LENGTH_SHORT,
+        toastLength: Toast.LENGTH_LONG,
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
         textColor: Colors.white,

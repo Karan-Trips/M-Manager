@@ -4,13 +4,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:try1/widgets_screen/adavance_calcander.dart';
 import 'package:try1/firebase_store/expense_store.dart';
-import 'package:try1/UI/screen/graph.dart';
-import 'package:try1/utils/model.dart';
+import 'package:try1/ui/screen/graph.dart';
 
 import '../../generated/l10n.dart';
 
@@ -26,20 +24,12 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
   late TabController _tabController;
   int selectedIndex = 0;
 
-  DateTime _selectedDate = DateTime.now();
+  DateTime selectedDate = DateTime.now();
   ValueNotifier<bool> isShowingDatePicker = ValueNotifier(false);
   Color historyTabColor = Colors.deepOrangeAccent;
   Color graphTabColor = Colors.green;
-  List<Expense> _filteredExpenses = [];
 
-  void _filterExpenses() {
-    _filteredExpenses = expenseStore.expenses.where((expense) {
-      final expenseDate = expense.date;
-      return expenseDate.year == _selectedDate.year &&
-          expenseDate.month == _selectedDate.month &&
-          expenseDate.day == _selectedDate.day;
-    }).toList();
-  }
+  void _filterExpenses() {}
 
   @override
   void initState() {
@@ -169,7 +159,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                   Padding(
                     padding: const EdgeInsets.only(left: 15),
                     child: Text(
-                      '₹ ${expenseStore.totalExpenses}',
+                      '₹ ${expenseStore.totalIncome - expenseStore.totalExpenses}',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 25,
@@ -313,7 +303,7 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
                           child: AdvancedCalendar(
                             onDateSelected: (selectedDate) {
                               setState(() {
-                                _selectedDate = selectedDate;
+                                selectedDate = selectedDate;
                                 _filterExpenses();
                               });
                             },

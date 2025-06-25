@@ -11,8 +11,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:theme_provider/theme_provider.dart';
-import 'package:try1/UI/cubits_app/cubits_app.dart';
-import 'package:try1/UI/cubits_app/cubits_state.dart';
+import 'package:try1/ui/cubits_app/cubits_app.dart';
+import 'package:try1/ui/cubits_app/cubits_state.dart';
 import 'package:try1/widgets_screen/ai/ai_page_learning.dart';
 import 'package:try1/widgets_screen/loading_screen.dart';
 

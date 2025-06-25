@@ -1,7 +1,3 @@
-// // ignore_for_file: use_build_context_synchronously, avoid_print
-
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, avoid_print, prefer_final_fields
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -19,13 +15,13 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   ValueNotifier<bool> isLoading = ValueNotifier(false);
-  ValueNotifier<bool> _isPasswordVisible = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isPasswordVisible = ValueNotifier<bool>(false);
 
   Widget _entryField(
       String title, bool isPassword, TextEditingController? controller) {
@@ -100,21 +96,31 @@ class _LoginPageState extends State<LoginPage> {
         padding: const EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: const Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+                color: Colors.grey.shade200,
+                offset: const Offset(2, 2),
+                blurRadius: 5,
+                spreadRadius: 2)
+          ],
+          gradient: const LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              Color(0xfffbb448),
+              Color(
+                0xfff7892b,
+              ),
             ],
-            gradient: const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+          ),
+        ),
         child: Text(
           title,
-          style: const TextStyle(fontSize: 20, color: Colors.white),
+          style: const TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+          ),
         ),
       ),
     );
@@ -157,8 +163,6 @@ class _LoginPageState extends State<LoginPage> {
     return InkWell(
       onTap: () {
         Get.to(() => SignUpPage());
-        // Navigator.push(context,
-        //     MaterialPageRoute(builder: (context) => const SignUpPage()));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),
@@ -223,64 +227,67 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
-    return Scaffold(
-        body: Loading(
-      status: loginController.isLoading.value,
-      child: Form(
-        key: _formKey,
-        child: SizedBox(
-          height: height,
-          child: Stack(
-            children: <Widget>[
-              Positioned(
-                top: -height * .15,
-                right: -MediaQuery.of(context).size.width * .4,
-                child: const BezierContainer(),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20.w),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      SizedBox(height: height * .2),
-                      _title(),
-                      SizedBox(height: 50.h),
-                      _emailPasswordWidget(),
-                      SizedBox(height: 20.h),
-                      _submitButton(S.of(context).login, () async {
-                        bool isValid = await loginController.validate(context);
-                        if (isValid) {
-                          return loginController.login(context);
-                        }
-                      }),
-                      InkWell(
-                        onTap: () {
-                          Get.to(() => ResetPasswordScreen());
-                        },
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 15.h),
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            S.of(context).forgotPassword,
-                            style: TextStyle(
-                              fontSize: 14.spMax,
-                              fontWeight: FontWeight.w500,
+    return Scaffold(body: Obx(() {
+      return Loading(
+        status: loginController.isLoading.value,
+        child: Form(
+          key: _formKey,
+          child: SizedBox(
+            height: height,
+            child: Stack(
+              children: <Widget>[
+                Positioned(
+                  top: -height * .15,
+                  right: -MediaQuery.of(context).size.width * .4,
+                  child: const BezierContainer(),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        SizedBox(height: height * .2),
+                        _title(),
+                        SizedBox(height: 50.h),
+                        _emailPasswordWidget(),
+                        SizedBox(height: 20.h),
+                        _submitButton(S.of(context).login, () async {
+                          bool isValid =
+                              await loginController.validate(context);
+                          if (isValid) {
+                            return loginController.login();
+                          }
+                        }),
+                        InkWell(
+                          onTap: () {
+                            Get.to(() => ResetPasswordScreen());
+                            // Get.to(() => MapScreen());
+                          },
+                          child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 15.h),
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              S.of(context).forgotPassword,
+                              style: TextStyle(
+                                fontSize: 14.spMax,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      _divider(),
-                      _createAccountLabel(),
-                    ],
+                        _divider(),
+                        _createAccountLabel(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-    ));
+      );
+    }));
   }
 }

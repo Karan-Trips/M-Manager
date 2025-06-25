@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:intl/intl.dart';
-import 'package:try1/UI/cubits_app/cubits_state.dart';
+import 'package:try1/ui/cubits_app/cubits_state.dart';
 import 'package:try1/app_db.dart';
 import 'package:try1/utils/model.dart';
 

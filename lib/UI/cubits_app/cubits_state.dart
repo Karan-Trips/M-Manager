@@ -4,8 +4,16 @@ abstract class AddExpenseState {}
 
 class AddExpenseInitial extends AddExpenseState {}
 
+/// 🔄 Generic loading state (could be used globally)
 class ExpenseLoading extends AddExpenseState {}
 
+/// 🔄 Loading state specifically for fetching details
+class ExpenseFetching extends AddExpenseState {}
+
+/// 🔄 Loading state specifically for adding an expense
+class ExpenseAdding extends AddExpenseState {}
+
+/// ✅ Success and failure states
 class ExpenseSuccess extends AddExpenseState {
   final String message;
   ExpenseSuccess(this.message);
@@ -16,6 +24,7 @@ class ExpenseFailure extends AddExpenseState {
   ExpenseFailure(this.error);
 }
 
+/// 📦 Data states
 class ExpenseFetched extends AddExpenseState {
   final List<Expense> expenses;
   ExpenseFetched(this.expenses);
@@ -26,6 +35,7 @@ class IncomeFetched extends AddExpenseState {
   IncomeFetched(this.totalIncome);
 }
 
+/// 🧩 UI/Field-related states
 class AddExpenseCategoryUpdated extends AddExpenseState {
   final String category;
   AddExpenseCategoryUpdated(this.category);
