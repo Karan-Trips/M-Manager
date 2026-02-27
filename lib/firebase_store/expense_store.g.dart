@@ -16,6 +16,13 @@ mixin _$ExpenseStore on _ExpenseStore, Store {
       (_$totalExpensesComputed ??= Computed<double>(() => super.totalExpenses,
               name: '_ExpenseStore.totalExpenses'))
           .value;
+  Computed<double>? _$filteredTotalComputed;
+
+  @override
+  double get filteredTotal =>
+      (_$filteredTotalComputed ??= Computed<double>(() => super.filteredTotal,
+              name: '_ExpenseStore.filteredTotal'))
+          .value;
   Computed<double>? _$balanceComputed;
 
   @override
@@ -43,6 +50,38 @@ mixin _$ExpenseStore on _ExpenseStore, Store {
   set expenses(ObservableList<Expense> value) {
     _$expensesAtom.reportWrite(value, super.expenses, () {
       super.expenses = value;
+    });
+  }
+
+  late final _$filteredExpensesAtom =
+      Atom(name: '_ExpenseStore.filteredExpenses', context: context);
+
+  @override
+  ObservableList<Expense> get filteredExpenses {
+    _$filteredExpensesAtom.reportRead();
+    return super.filteredExpenses;
+  }
+
+  @override
+  set filteredExpenses(ObservableList<Expense> value) {
+    _$filteredExpensesAtom.reportWrite(value, super.filteredExpenses, () {
+      super.filteredExpenses = value;
+    });
+  }
+
+  late final _$activeFilterDateAtom =
+      Atom(name: '_ExpenseStore.activeFilterDate', context: context);
+
+  @override
+  DateTime? get activeFilterDate {
+    _$activeFilterDateAtom.reportRead();
+    return super.activeFilterDate;
+  }
+
+  @override
+  set activeFilterDate(DateTime? value) {
+    _$activeFilterDateAtom.reportWrite(value, super.activeFilterDate, () {
+      super.activeFilterDate = value;
     });
   }
 
@@ -110,12 +149,37 @@ mixin _$ExpenseStore on _ExpenseStore, Store {
     });
   }
 
+  late final _$isFilterLoadingAtom =
+      Atom(name: '_ExpenseStore.isFilterLoading', context: context);
+
+  @override
+  bool get isFilterLoading {
+    _$isFilterLoadingAtom.reportRead();
+    return super.isFilterLoading;
+  }
+
+  @override
+  set isFilterLoading(bool value) {
+    _$isFilterLoadingAtom.reportWrite(value, super.isFilterLoading, () {
+      super.isFilterLoading = value;
+    });
+  }
+
   late final _$fetchExpensesAsyncAction =
       AsyncAction('_ExpenseStore.fetchExpenses', context: context);
 
   @override
   Future<void> fetchExpenses() {
     return _$fetchExpensesAsyncAction.run(() => super.fetchExpenses());
+  }
+
+  late final _$fetchExpensesByDateAsyncAction =
+      AsyncAction('_ExpenseStore.fetchExpensesByDate', context: context);
+
+  @override
+  Future<void> fetchExpensesByDate(DateTime date) {
+    return _$fetchExpensesByDateAsyncAction
+        .run(() => super.fetchExpensesByDate(date));
   }
 
   late final _$fetchIncomeAsyncAction =
@@ -152,15 +216,44 @@ mixin _$ExpenseStore on _ExpenseStore, Store {
         .run(() => super.updateIncome(newIncomeValue));
   }
 
+  late final _$_ExpenseStoreActionController =
+      ActionController(name: '_ExpenseStore', context: context);
+
+  @override
+  void clearDateFilter() {
+    final _$actionInfo = _$_ExpenseStoreActionController.startAction(
+        name: '_ExpenseStore.clearDateFilter');
+    try {
+      return super.clearDateFilter();
+    } finally {
+      _$_ExpenseStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void _applyLocalFilter(DateTime date) {
+    final _$actionInfo = _$_ExpenseStoreActionController.startAction(
+        name: '_ExpenseStore._applyLocalFilter');
+    try {
+      return super._applyLocalFilter(date);
+    } finally {
+      _$_ExpenseStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
 expenses: ${expenses},
+filteredExpenses: ${filteredExpenses},
+activeFilterDate: ${activeFilterDate},
 isPasswordVisible: ${isPasswordVisible},
 totalIncome: ${totalIncome},
 userId: ${userId},
 isLoading: ${isLoading},
+isFilterLoading: ${isFilterLoading},
 totalExpenses: ${totalExpenses},
+filteredTotal: ${filteredTotal},
 balance: ${balance},
 leftBalance: ${leftBalance}
     ''';

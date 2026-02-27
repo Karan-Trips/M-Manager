@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 
 import 'package:lottie/lottie.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
-import 'package:try1/app_db.dart';
-import 'package:try1/auth/login_screen.dart';
+import 'package:m_manager/app_db.dart';
+import 'package:m_manager/auth/login_screen.dart';
 
 class IntroPage extends StatefulWidget {
   const IntroPage({super.key});
@@ -39,7 +39,7 @@ class _IntroPageState extends State<IntroPage> {
       setState(() {
         _currentPage.value++;
       });
-      print(_currentPage.value);
+      debugPrint(_currentPage.value.toString());
     } else {
       appDb.isFirstTime = false;
       Get.off(() => LoginPage());

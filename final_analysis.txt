@@ -1,0 +1,47 @@
+Analyzing M-Manager...                                          
+
+   info • Don't invoke 'print' in production code • lib/auth/getx_auth/getx_login.dart:88:13 • avoid_print
+   info • Don't invoke 'print' in production code • lib/auth/getx_auth/getx_login.dart:96:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/auth/getx_auth/getx_sign_up.dart:22:7 • avoid_print
+   info • Missing type annotation • lib/generated/intl/messages_en.dart:24:52 • strict_top_level_inference
+   info • Missing type annotation • lib/generated/intl/messages_hi.dart:24:52 • strict_top_level_inference
+   info • The import of 'package:skeletonizer/skeletonizer.dart' is unnecessary because all of the used elements are also provided by the import of 'dart:ui' • lib/main.dart:15:8 • unnecessary_import
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:33:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:38:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:237:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:242:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:255:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:258:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:264:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:269:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:282:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/cubits_app/cubits_app.dart:284:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/ui/screen/histroy.dart:501:7 • avoid_print
+   info • 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings • lib/ui/screen/map_trail/map_screen.dart:48:7 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/ui/screen/setting_page.dart:81:30 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code • lib/ui/screen/setting_page.dart:102:7 • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/ui/screen/setting_page.dart:148:46 • deprecated_member_use
+   info • Don't invoke 'print' in production code • lib/ui/welcome_screen/intro_page.dart:42:7 • avoid_print
+   info • Missing type annotation • lib/utils/gfgtoast.dart:32:10 • strict_top_level_inference
+   info • Missing type annotation • lib/utils/gfgtoast.dart:33:5 • strict_top_level_inference
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets_screen/ai/model/recepit.dart:28:26 • deprecated_member_use
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:14:7 • avoid_print
+   info • Don't use 'BuildContext's across async gaps • lib/widgets_screen/bio_materic.dart:16:11 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:32:5 • avoid_print
+   info • Don't use 'BuildContext's across async gaps • lib/widgets_screen/bio_materic.dart:34:9 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:38:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:41:7 • avoid_print
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:44:5 • avoid_print
+   info • Don't use 'BuildContext's across async gaps • lib/widgets_screen/bio_materic.dart:45:30 • use_build_context_synchronously
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:60:5 • avoid_print
+   info • Don't invoke 'print' in production code • lib/widgets_screen/bio_materic.dart:63:5 • avoid_print
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets_screen/custom_barchart.dart:27:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets_screen/custom_barchart.dart:29:28 • deprecated_member_use
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets_screen/custom_barchart.dart:38:40 • deprecated_member_use
+   info • Missing type annotation • lib/widgets_screen/firebase_exceptions.dart:18:10 • strict_top_level_inference
+   info • Missing type annotation • lib/widgets_screen/firebase_exceptions.dart:39:38 • strict_top_level_inference
+   info • Don't use 'BuildContext's across async gaps • lib/widgets_screen/image_picker.dart:48:31 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/widgets_screen/image_picker.dart:55:31 • use_build_context_synchronously
+   info • 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss • lib/widgets_screen/loading_screen.dart:39:31 • deprecated_member_use
+
+43 issues found. (ran in 4.0s)

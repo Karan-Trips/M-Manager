@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:try1/locator.dart';
+import 'package:m_manager/locator.dart';
 
 class AppDb {
   final Box<String> _userBox; // Box for user-related data (String)

@@ -6,11 +6,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:theme_provider/theme_provider.dart';
-import 'package:try1/auth/getx_auth/getx_login.dart';
-import 'package:try1/widgets_screen/firebase_exceptions.dart';
-import 'package:try1/utils/design_container.dart';
-import 'package:try1/widgets_screen/loading_screen.dart';
-import 'package:try1/widgets_screen/show_message.dart';
+import 'package:m_manager/auth/getx_auth/getx_login.dart';
+import 'package:m_manager/widgets_screen/firebase_exceptions.dart';
+import 'package:m_manager/utils/design_container.dart';
+import 'package:m_manager/widgets_screen/loading_screen.dart';
+import 'package:m_manager/widgets_screen/show_message.dart';
 
 import '../generated/l10n.dart';
 

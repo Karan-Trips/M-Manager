@@ -79,8 +79,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Expense deleted successfully."),
         "expenseReceipt":
             MessageLookupByLibrary.simpleMessage("Expense Receipt"),
-        "expenseSummary":
-            MessageLookupByLibrary.simpleMessage("Expense Summary"),
+        "expenseSummary": MessageLookupByLibrary.simpleMessage("Expense"),
         "expenseWithTheGivenIdNotFound": MessageLookupByLibrary.simpleMessage(
             "Expense with the given ID not found."),
         "expenses": MessageLookupByLibrary.simpleMessage("Expenses"),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:try1/widgets_screen/loading_screen.dart';
-import 'package:try1/auth/getx_auth/getx_sign_up.dart';
-import 'package:try1/utils/design_container.dart';
+import 'package:m_manager/widgets_screen/loading_screen.dart';
+import 'package:m_manager/auth/getx_auth/getx_sign_up.dart';
+import 'package:m_manager/utils/design_container.dart';
 
 import '../generated/l10n.dart';
 import 'login_screen.dart';

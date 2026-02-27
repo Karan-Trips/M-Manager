@@ -29,18 +29,17 @@ class GFToast {
   late Widget trailing;
 
   // ignore: type_annotate_public_apis, always_declare_return_types
-  static showToast(
-    text,
+  static void showToast(
+    String text,
     BuildContext context, {
-    toastDuration,
-    toastPosition,
-    backgroundColor = const Color(0xAA000000),
-    textStyle = const TextStyle(fontSize: 15, color: Colors.white),
-    toastBorderRadius = 6.0,
-    border,
-    trailing,
+    int? toastDuration,
+    GFToastPosition? toastPosition,
+    Color backgroundColor = const Color(0xAA000000),
+    TextStyle textStyle = const TextStyle(fontSize: 15, color: Colors.white),
+    double toastBorderRadius = 6.0,
+    Border? border,
+    Widget? trailing,
   }) {
-    assert(text != null);
     ToastView.dismiss();
     ToastView.createView(text, context, toastDuration, toastPosition,
         backgroundColor, textStyle, toastBorderRadius, border, trailing);
@@ -70,8 +69,7 @@ class ToastView {
       TextStyle textStyle,
       double toastBorderRadius,
       Border? border,
-      // ignore: type_annotate_public_apis
-      trailing) async {
+      Widget? trailing) async {
     overlayState = Overlay.of(context, rootOverlay: false);
 
     final Widget toastChild = SafeArea(

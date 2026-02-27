@@ -2,7 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mobx/mobx.dart';
-import 'package:try1/app_db.dart';
+import 'package:m_manager/app_db.dart';
 import '../utils/model.dart';
 
 part 'expense_store.g.dart';
@@ -10,8 +10,17 @@ part 'expense_store.g.dart';
 class ExpenseStore = _ExpenseStore with _$ExpenseStore;
 
 abstract class _ExpenseStore with Store {
+  // ── All expenses (raw, unfiltered) ─────────────────────────────────────────
   @observable
   ObservableList<Expense> expenses = ObservableList<Expense>();
+
+  // ── Date-filtered expenses ─────────────────────────────────────────────────
+  @observable
+  ObservableList<Expense> filteredExpenses = ObservableList<Expense>();
+
+  // ── Currently active filter date (null = no filter applied) ───────────────
+  @observable
+  DateTime? activeFilterDate;
 
   @observable
   bool isPasswordVisible = false;
@@ -22,24 +31,30 @@ abstract class _ExpenseStore with Store {
   @observable
   String? userId;
 
-  @computed
-  double get totalExpenses {
-    return expenses.fold(0.0, (total, expense) => total + expense.amount);
-  }
-
-  @computed
-  double get balance {
-    return totalIncome - totalExpenses;
-  }
-
-  @computed
-  double get leftBalance {
-    return totalIncome - totalExpenses;
-  }
-
   @observable
   bool isLoading = true;
 
+  // ── Whether the date-filtered fetch is running ─────────────────────────────
+  @observable
+  bool isFilterLoading = false;
+
+  // ── Computed: total of ALL expenses ───────────────────────────────────────
+  @computed
+  double get totalExpenses =>
+      expenses.fold(0.0, (total, e) => total + e.amount);
+
+  // ── Computed: total of only filtered expenses ──────────────────────────────
+  @computed
+  double get filteredTotal =>
+      filteredExpenses.fold(0.0, (total, e) => total + e.amount);
+
+  @computed
+  double get balance => totalIncome - totalExpenses;
+
+  @computed
+  double get leftBalance => totalIncome - totalExpenses;
+
+  // ── Fetch ALL expenses from Firestore ──────────────────────────────────────
   @action
   Future<void> fetchExpenses() async {
     isLoading = true;
@@ -47,32 +62,122 @@ abstract class _ExpenseStore with Store {
       final userId = await appDb.getUserId();
       if (userId == null) {
         print("User ID not found.");
+        isLoading = false;
         return;
       }
 
-      DocumentReference userDoc =
-          FirebaseFirestore.instance.collection('users').doc(userId);
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
 
-      DocumentSnapshot docSnapshot = await userDoc.get();
       if (docSnapshot.exists) {
-        List<dynamic> expenseList = docSnapshot['expense'] ?? [];
-        expenses.clear();
-        expenses.addAll(
-          expenseList.map(
-            (expense) => Expense.fromMap(expense as Map<String, dynamic>),
-          ),
-        );
-        isLoading = false;
+        final List<dynamic> expenseList = docSnapshot['expense'] ?? [];
+        expenses
+          ..clear()
+          ..addAll(
+            expenseList.map(
+              (e) => Expense.fromMap(e as Map<String, dynamic>),
+            ),
+          );
+
+        // If a filter date is active, re-apply it on the fresh data
+        if (activeFilterDate != null) {
+          _applyLocalFilter(activeFilterDate!);
+        }
       } else {
         print("User document does not exist.");
-        isLoading = false;
       }
     } catch (error) {
       print("Error fetching expenses: $error");
+    } finally {
       isLoading = false;
     }
   }
 
+  @action
+  Future<void> fetchExpensesByDate(DateTime date) async {
+    activeFilterDate = date;
+    isFilterLoading = true;
+
+    try {
+      final userId = await appDb.getUserId();
+      if (userId == null) {
+        print("User ID not found.");
+        isFilterLoading = false;
+        return;
+      }
+
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (docSnapshot.exists) {
+        final List<dynamic> expenseList = docSnapshot['expense'] ?? [];
+
+        // Parse ALL expenses fresh (keeps `expenses` list up-to-date too)
+        final allParsed = expenseList
+            .map((e) => Expense.fromMap(e as Map<String, dynamic>))
+            .toList();
+
+        expenses
+          ..clear()
+          ..addAll(allParsed);
+
+        // Now filter locally by the selected date
+        _applyLocalFilter(date);
+
+        print(
+          "Fetched ${filteredExpenses.length} expense(s) for "
+          "${date.day}/${date.month}/${date.year}",
+        );
+      } else {
+        print("User document does not exist.");
+        filteredExpenses.clear();
+      }
+    } catch (error) {
+      print("Error fetching expenses by date: $error");
+      filteredExpenses.clear();
+    } finally {
+      isFilterLoading = false;
+    }
+  }
+
+  // ── Clear date filter — revert to showing all expenses ────────────────────
+  @action
+  void clearDateFilter() {
+    activeFilterDate = null;
+    filteredExpenses.clear();
+    print("Date filter cleared. Showing all expenses.");
+  }
+
+  // ── Internal helper — filters `expenses` → `filteredExpenses` ─────────────
+  @action
+  void _applyLocalFilter(DateTime date) {
+    filteredExpenses
+      ..clear()
+      ..addAll(
+        expenses.where((expense) {
+          final d = _toDateTime(expense.date);
+          if (d == null) return false;
+          return d.year == date.year &&
+              d.month == date.month &&
+              d.day == date.day;
+        }),
+      );
+  }
+
+  // ── Helper: normalise any date representation to DateTime? ────────────────
+  DateTime? _toDateTime(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is DateTime) return raw;
+    if (raw is Timestamp) return raw.toDate();
+    if (raw is String) return DateTime.tryParse(raw);
+    return null;
+  }
+
+  // ── Fetch income ──────────────────────────────────────────────────────────
   @action
   Future<void> fetchIncome() async {
     try {
@@ -82,15 +187,15 @@ abstract class _ExpenseStore with Store {
         return;
       }
 
-      DocumentReference userDoc =
-          FirebaseFirestore.instance.collection('users').doc(userId);
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
 
-      DocumentSnapshot docSnapshot = await userDoc.get();
       if (docSnapshot.exists) {
-        totalIncome = docSnapshot['income'] ?? 0.0;
-        print("Fetched income successfully: $totalIncome");
+        totalIncome = (docSnapshot['income'] ?? 0.0).toDouble();
+        print("Fetched income: $totalIncome");
       } else {
-        print("User document does not exist.");
         totalIncome = 0.0;
       }
     } catch (error) {
@@ -98,6 +203,7 @@ abstract class _ExpenseStore with Store {
     }
   }
 
+  // ── Add expense ───────────────────────────────────────────────────────────
   @action
   Future<void> addExpense(Expense expense) async {
     try {
@@ -107,31 +213,45 @@ abstract class _ExpenseStore with Store {
         return;
       }
 
-      String expenseId =
-          FirebaseFirestore.instance.collection('users').doc().id;
+      final expenseId = FirebaseFirestore.instance.collection('users').doc().id;
 
-      DocumentReference userDoc =
+      final userDoc =
           FirebaseFirestore.instance.collection('users').doc(userId);
 
       await userDoc.update({
         'expense': FieldValue.arrayUnion([expense.toMap()..['id'] = expenseId]),
       });
 
-      expenses.add(Expense(
+      final newExpense = Expense(
         id: expenseId,
         category: expense.category,
         amount: expense.amount,
         date: expense.date,
         time: expense.time,
-      ));
-      fetchExpenses();
-      fetchIncome();
+      );
+
+      expenses.add(newExpense);
+
+      // If filter is active and this new expense matches the date → add it too
+      if (activeFilterDate != null) {
+        final d = _toDateTime(newExpense.date);
+        if (d != null &&
+            d.year == activeFilterDate!.year &&
+            d.month == activeFilterDate!.month &&
+            d.day == activeFilterDate!.day) {
+          filteredExpenses.add(newExpense);
+        }
+      }
+
+      await fetchExpenses();
+      await fetchIncome();
       print("Added expense successfully.");
     } catch (error) {
       print("Error adding expense: $error");
     }
   }
 
+  // ── Delete expense ────────────────────────────────────────────────────────
   @action
   Future<void> deleteExpense(String documentId) async {
     try {
@@ -141,57 +261,55 @@ abstract class _ExpenseStore with Store {
         return;
       }
 
-      DocumentReference userDoc =
+      final userDoc =
           FirebaseFirestore.instance.collection('users').doc(userId);
 
-      // Retrieve the current expenses
-      DocumentSnapshot docSnapshot = await userDoc.get();
+      final docSnapshot = await userDoc.get();
       if (docSnapshot.exists) {
-        List<dynamic> currentExpenses = docSnapshot['expense'] ?? [];
+        final List<dynamic> currentExpenses = docSnapshot['expense'] ?? [];
 
-        // Find the expense to delete by document ID
         final expenseToDelete = currentExpenses.firstWhere(
-          (expense) => expense['id'] == documentId,
+          (e) => e['id'] == documentId,
           orElse: () => null,
         );
 
         if (expenseToDelete != null) {
-          // Remove the expense from Firestore
           await userDoc.update({
             'expense': FieldValue.arrayRemove([expenseToDelete]),
           });
 
-          // Remove the expense from the local observable list
-          expenses.removeWhere((expense) => expense.id == documentId);
+          expenses.removeWhere((e) => e.id == documentId);
+
+          // Also remove from filtered list if present
+          filteredExpenses.removeWhere((e) => e.id == documentId);
 
           print("Expense deleted successfully.");
         } else {
-          print("Expense with the given documentId not found.");
+          print("Expense with ID $documentId not found.");
         }
-      } else {
-        print("User document does not exist.");
       }
     } catch (error) {
       print("Error deleting expense: $error");
     }
   }
 
+  // ── Update income ─────────────────────────────────────────────────────────
   @action
   Future<void> updateIncome(double newIncomeValue) async {
     try {
       final userId = await appDb.getUserId();
       if (userId == null) {
-        print("User ID not found. Please sign in again.");
+        print("User ID not found.");
         return;
       }
 
-      DocumentReference userDoc =
-          FirebaseFirestore.instance.collection('users').doc(userId);
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .update({'income': newIncomeValue});
 
-      await userDoc.update({'income': newIncomeValue});
       totalIncome = newIncomeValue;
-
-      print("Income updated successfully.");
+      print("Income updated to $newIncomeValue.");
     } catch (error) {
       print("Error updating income: $error");
     }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:try1/firebase_store/expense_store.dart';
+import 'package:m_manager/firebase_store/expense_store.dart';
 
 final LocalAuthentication _localAuthService = LocalAuthentication();
 
@@ -11,7 +11,9 @@ Future<void> checkAndAuthenticateBiometrics(BuildContext context) async {
         await _localAuthService.getAvailableBiometrics();
 
     if (availableBiometrics.isEmpty) {
-      print('[Biometrics] ❌ No biometric methods available on this device.');
+      debugPrint(
+          '[Biometrics] ❌ No biometric methods available on this device.');
+      if (!context.mounted) return;
       _showBiometricInfoDialog(
           context, "No biometric methods are available on this device.");
       return;
@@ -29,19 +31,21 @@ Future<void> checkAndAuthenticateBiometrics(BuildContext context) async {
       }
     }).toList();
 
-    print('[Biometrics] ✅ Available: ${readableTypes.join(', ')}');
+    debugPrint('[Biometrics] ✅ Available: ${readableTypes.join(', ')}');
+    if (!context.mounted) return;
     _showBiometricInfoDialog(
         context, "Available biometrics:\n${readableTypes.join('\n')}");
 
     final isAuthenticated = await _authenticateWithBiometrics();
     if (isAuthenticated) {
-      print('[Biometrics] ✅ Authentication successful.');
+      debugPrint('[Biometrics] ✅ Authentication successful.');
       expenseStore.isPasswordVisible = !expenseStore.isPasswordVisible;
     } else {
-      print('[Biometrics] ❌ Authentication failed or cancelled.');
+      debugPrint('[Biometrics] ❌ Authentication failed or cancelled.');
     }
   } catch (e) {
-    print('[Biometrics] ⚠️ Error during biometric check: $e');
+    debugPrint('[Biometrics] ⚠️ Error during biometric check: $e');
+    if (!context.mounted) return;
     _showBiometricInfoDialog(context, "Error checking biometrics: $e");
   }
 }
@@ -57,10 +61,10 @@ Future<bool> _authenticateWithBiometrics() async {
       ),
     );
   } on PlatformException catch (e) {
-    print('[Biometrics] PlatformException: ${e.code}');
+    debugPrint('[Biometrics] PlatformException: ${e.code}');
     return false;
   } catch (e) {
-    print('[Biometrics] Unknown error: $e');
+    debugPrint('[Biometrics] Unknown error: $e');
     return false;
   }
 }

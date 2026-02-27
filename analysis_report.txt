@@ -1,0 +1,14 @@
+Analyzing M-Manager...                                          
+
+   info • Missing type annotation • lib/generated/intl/messages_en.dart:24:52 • strict_top_level_inference
+   info • Missing type annotation • lib/generated/intl/messages_hi.dart:24:52 • strict_top_level_inference
+warning • Unused import: 'package:local_auth/local_auth.dart' • lib/main.dart:18:8 • unused_import
+warning • Unused import: 'package:shimmer_animation/shimmer_animation.dart' • lib/main.dart:20:8 • unused_import
+   info • Missing type annotation • lib/utils/gfgtoast.dart:32:10 • strict_top_level_inference
+   info • Missing type annotation • lib/utils/gfgtoast.dart:33:5 • strict_top_level_inference
+   info • Missing type annotation • lib/widgets_screen/firebase_exceptions.dart:18:10 • strict_top_level_inference
+   info • Missing type annotation • lib/widgets_screen/firebase_exceptions.dart:39:38 • strict_top_level_inference
+   info • The type of the right operand ('ConnectivityResult') isn't a subtype or a supertype of the left operand ('List<ConnectivityResult>') • lib/widgets_screen/internet_connectivity/internet_connectivity.dart:17:32 • unrelated_type_equality_checks
+   info • The type of the right operand ('ConnectivityResult') isn't a subtype or a supertype of the left operand ('List<ConnectivityResult>') • lib/widgets_screen/internet_connectivity/internet_connectivity.dart:22:34 • unrelated_type_equality_checks
+
+10 issues found. (ran in 3.9s)

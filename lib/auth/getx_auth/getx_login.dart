@@ -4,11 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:try1/app_db.dart';
-import 'package:try1/firebase_store/expense_store.dart';
-import 'package:try1/main.dart';
-import 'package:try1/utils/utils.dart';
-import 'package:try1/widgets_screen/show_message.dart';
+import 'package:m_manager/app_db.dart';
+import 'package:m_manager/firebase_store/expense_store.dart';
+import 'package:m_manager/ui/screen/home_page.dart';
+import 'package:m_manager/utils/utils.dart';
+import 'package:m_manager/widgets_screen/show_message.dart';
 
 import '../../generated/l10n.dart';
 
@@ -85,7 +85,7 @@ class LoginController extends GetxController {
             await expenseStore.fetchExpenses();
             await expenseStore.fetchIncome();
           } else {
-            print("User is null or UID is empty.");
+            debugPrint("User is null or UID is empty.");
           }
           isLoading.value = false;
           Get.off(() => MoneyManagerHomePage());
@@ -93,7 +93,7 @@ class LoginController extends GetxController {
       );
     } catch (error) {
       isLoading.value = false;
-      print('Login failed: $error');
+      debugPrint('Login failed: $error');
       showMessage('Login failed:$error', type: MessageType.error);
     }
   }

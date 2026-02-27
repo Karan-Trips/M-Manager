@@ -36,7 +36,7 @@ class _LoadingState extends State<Loading> {
             alignment: Alignment.center,
             color: widget.backgroundTransparent == true
                 ? Colors.grey
-                : Colors.grey.withOpacity(0.3),
+                : Colors.grey.withValues(alpha: 0.3),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

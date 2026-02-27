@@ -4,29 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:intl/intl.dart';
-import 'package:try1/ui/cubits_app/cubits_state.dart';
-import 'package:try1/app_db.dart';
-import 'package:try1/utils/model.dart';
+import 'package:m_manager/ui/cubits_app/cubits_state.dart';
+import 'package:m_manager/app_db.dart';
+import 'package:m_manager/utils/model.dart';
 
 import '../../generated/l10n.dart';
+
+import 'package:m_manager/utils/constants.dart';
 
 class AddExpenseCubit extends Cubit<AddExpenseState> {
   AddExpenseCubit() : super(AddExpenseInitial());
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController incomeController = TextEditingController();
-  String selectedCategory = 'Groceries';
+  String selectedCategory = AppConstants.defaultCategories.first;
   bool showIncomeTextField = false;
 
-  List<String> categories = [
-    'Groceries',
-    'Fast-Food',
-    'Ghumne',
-    'Food',
-    'Medicine',
-    'Office',
-    'EMI',
-  ];
+  List<String> categories = List.from(AppConstants.defaultCategories);
 
   void updateCategory(String? category) {
     if (category != null) {
@@ -36,12 +30,12 @@ class AddExpenseCubit extends Cubit<AddExpenseState> {
   }
 
   void addCategory(String newCategory) {
-    print("Before: $categories");
+    debugPrint("Before: $categories");
     if (newCategory.isNotEmpty && !categories.contains(newCategory)) {
       categories = List.from(categories)..add(newCategory);
       emit(AddExpenseCategoryAdded(List.from(categories)));
     }
-    print("After: $categories");
+    debugPrint("After: $categories");
   }
 
   void removeCategory(String category) {
@@ -240,12 +234,12 @@ class BudgetCubit extends Cubit<Map<String, double>> {
 
   Future<void> fetchBudgets() async {
     if (_userId == null) {
-      print("❌ User not logged in!");
+      debugPrint("❌ User not logged in!");
       return;
     }
 
     try {
-      print("🔍 Fetching budgets for User ID: $_userId");
+      debugPrint("🔍 Fetching budgets for User ID: $_userId");
 
       final snapshot = await _firestore
           .collection('users')
@@ -258,21 +252,21 @@ class BudgetCubit extends Cubit<Map<String, double>> {
         budgetData[doc.id] = (doc.data()['amount'] as num).toDouble();
       }
 
-      print("✅ Fetched budgets: $budgetData");
+      debugPrint("✅ Fetched budgets: $budgetData");
       emit(budgetData);
     } catch (e) {
-      print("❌ Error fetching budgets: $e");
+      debugPrint("❌ Error fetching budgets: $e");
     }
   }
 
   Future<void> setBudget(String category, double amount) async {
     if (_userId == null) {
-      print("❌ Cannot set budget, user not logged in!");
+      debugPrint("❌ Cannot set budget, user not logged in!");
       return;
     }
 
     try {
-      print("📝 Setting budget for $category: ₹$amount");
+      debugPrint("📝 Setting budget for $category: ₹$amount");
 
       await _firestore
           .collection('users')
@@ -285,9 +279,9 @@ class BudgetCubit extends Cubit<Map<String, double>> {
       updatedBudgets[category] = amount;
       emit(updatedBudgets);
 
-      print("✅ Budget updated: $updatedBudgets");
+      debugPrint("✅ Budget updated: $updatedBudgets");
     } catch (e) {
-      print("❌ Error setting budget: $e");
+      debugPrint("❌ Error setting budget: $e");
     }
   }
 

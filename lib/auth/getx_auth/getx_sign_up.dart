@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:try1/utils/utils.dart';
+import 'package:m_manager/utils/utils.dart';
 
 import '../../generated/l10n.dart';
 
@@ -19,7 +19,7 @@ class SignUpController extends GetxController {
 
   Future<bool> validateForm(BuildContext context) async {
     if (_usernameController.text.isEmpty) {
-      print("asdasd_)___");
+      debugPrint("asdasd_)___");
       showMessageTop(context, S.of(context).enterTheUsername);
       return false;
     } else if (_emailController.text.isEmpty) {

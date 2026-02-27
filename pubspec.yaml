@@ -1,4 +1,4 @@
-name: try1
+name: m_manager
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -92,6 +92,7 @@ dependencies:
   geocoding: ^4.0.0
   shimmer_animation: ^2.2.2
   skeletonizer: ^2.0.1
+  flutter_riverpod: ^3.2.1
 
 dev_dependencies:
   build_runner: ^2.4.13

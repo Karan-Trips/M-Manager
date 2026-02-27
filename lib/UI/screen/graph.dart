@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
+import '../../utils/model.dart';
 import 'package:lottie/lottie.dart';
-import 'package:theme_provider/theme_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:try1/utils/model.dart';
-import 'package:try1/widgets_screen/custom_barchart.dart';
 
 import '../../firebase_store/expense_store.dart';
-import '../../generated/l10n.dart';
+import '../../widgets_screen/custom_barchart.dart';
 
 class ExpenseGraphPage extends StatefulWidget {
   const ExpenseGraphPage({super.key});
@@ -20,12 +17,22 @@ class ExpenseGraphPage extends StatefulWidget {
 }
 
 class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
-  bool isDarkMode = false;
   bool isBarchart = false;
   int? touchedIndex;
-  double? totalAmount;
-  double? perAmount;
-  List<String> image = [];
+
+  /// Lavender Theme Colors
+  final Color lavenderPrimary = const Color(0xFF7E57C2);
+  final Color lavenderLight = const Color(0xFFEDE7F6);
+  final Color lavenderDark = const Color(0xFF5E35B1);
+  final Color lavenderBg = const Color(0xFFF3EFFF);
+
+  final List<Color> lavenderPalette = const [
+    Color(0xFFB39DDB),
+    Color(0xFF9575CD),
+    Color(0xFF7E57C2),
+    Color(0xFF673AB7),
+    Color(0xFFD1C4E9),
+  ];
 
   @override
   void initState() {
@@ -35,90 +42,94 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
 
   @override
   Widget build(BuildContext context) {
-    isDarkMode =
-        ThemeProvider.themeOf(context).data.brightness == Brightness.dark;
-
     return Scaffold(
+      backgroundColor: lavenderBg,
       body: Observer(
-        builder: (context) {
+        builder: (_) {
           if (expenseStore.isLoading) {
-            return Center(child: Lottie.asset('images/loading.json'));
+            return Center(
+              child: Lottie.asset('images/loading.json', height: 150.h),
+            );
           }
+
           List<Expense> documents = expenseStore.expenses;
           if (documents.isEmpty) {
-            return const Center(child: Text("No expenses found."));
+            return Center(
+              child: Text(
+                "No expenses found",
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: lavenderDark,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            );
           }
 
-          Map<String, int> categoryToCount = {};
           Map<String, double> categoryToAmount = {};
+          Map<String, int> categoryToCount = {};
 
           for (var doc in documents) {
-            dynamic category = doc.category;
-            dynamic amount = doc.amount;
+            final category = doc.category.toString();
+            final amount = doc.amount.toDouble();
 
-            if (category != null && amount != null) {
-              String categoryString = category.toString();
-              double amountDouble = (amount is num) ? amount.toDouble() : 0.0;
-
-              categoryToAmount[categoryString] =
-                  (categoryToAmount[categoryString] ?? 0.0) + amountDouble;
-              categoryToCount[categoryString] =
-                  (categoryToCount[categoryString] ?? 0) + 1;
-            }
+            categoryToAmount[category] =
+                (categoryToAmount[category] ?? 0.0) + amount;
+            categoryToCount[category] = (categoryToCount[category] ?? 0) + 1;
           }
 
-          List<PieChartSectionData> pieChartSections = [];
-          List<String> legendTitles = [];
+          List<PieChartSectionData> sections = [];
+          List<String> legends = [];
+          List<String> categories = [];
+
           int index = 0;
-
           categoryToAmount.forEach((category, amount) {
-            int count = categoryToCount[category] ?? 0;
-            perAmount = amount;
+            final count = categoryToCount[category] ?? 0;
+            final isTouched = index == touchedIndex;
 
-            if (count > 0) {
-              final isTouched = index == touchedIndex;
-              final double radius = isTouched ? 90.0 : 80.0;
-
-              pieChartSections.add(
-                PieChartSectionData(
-                  title: '${calculatePercentage(amount)}%',
-                  value: amount,
-                  color: Colors.primaries[index % Colors.primaries.length],
-                  radius: radius,
-                  titleStyle: TextStyle(
-                    color: isDarkMode ? Colors.black : Colors.white,
-                    fontSize: 13.spMax,
-                    fontWeight: isTouched ? FontWeight.bold : FontWeight.normal,
-                  ),
+            sections.add(
+              PieChartSectionData(
+                value: amount,
+                title: '${_calculatePercentage(amount)}%',
+                radius: isTouched ? 90 : 80,
+                color: lavenderPalette[index % lavenderPalette.length],
+                titleStyle: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: isTouched ? FontWeight.bold : FontWeight.normal,
+                  color: Colors.white,
                 ),
-              );
-              image.add(category);
-              legendTitles.add(
-                '$category: ₹${amount.toStringAsFixed(2)} ($count times)',
-              );
-              index++;
-            }
+              ),
+            );
+
+            legends.add("$category : ₹${amount.toStringAsFixed(2)} ($count)");
+            categories.add(category);
+            index++;
           });
 
           return Column(
             children: [
-              30.verticalSpace,
+              40.verticalSpace,
+
+              /// Chart Section
               Expanded(
                 child: isBarchart
-                    ? Stack(
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12.w),
+                        child: CategoryBarChart(
+                          categoryToAmount: categoryToAmount,
+                        ),
+                      )
+                    : Stack(
                         children: [
                           PieChart(
                             PieChartData(
-                              sections: pieChartSections,
-                              titleSunbeamLayout: true,
-                              borderData: FlBorderData(
-                                show: false,
-                              ),
-                              centerSpaceRadius: 90,
-                              sectionsSpace: 0,
+                              sections: sections,
+                              borderData: FlBorderData(show: false),
+                              centerSpaceRadius: 85,
+                              sectionsSpace: 3,
                               pieTouchData: PieTouchData(
-                                touchCallback: (FlTouchEvent event,
-                                    PieTouchResponse? response) {
+                                enabled: true,
+                                touchCallback: (event, response) {
                                   if (!event.isInterestedForInteractions ||
                                       response?.touchedSection == null) {
                                     setState(() {
@@ -129,99 +140,112 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
                                   setState(() {
                                     touchedIndex = response!
                                         .touchedSection!.touchedSectionIndex;
-                                    final touchedCategory = categoryToAmount
-                                        .keys
-                                        .toList()[touchedIndex ?? 0];
-                                    final touchedAmount =
-                                        categoryToAmount[touchedCategory] ?? 0;
-                                    final touchedCount =
-                                        categoryToCount[touchedCategory] ?? 0;
-
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          title: Text(touchedCategory),
-                                          content: Text(
-                                            'Total Amount: ₹${touchedAmount.toStringAsFixed(2)}\n'
-                                            'Entries: $touchedCount',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              child: Text(S.of(context).close),
-                                              onPressed: () {
-                                                Get.back();
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
                                   });
                                 },
-                                enabled: true,
                               ),
                             ),
                           ),
+
+                          /// Center Info
                           Center(
-                            child: Text(
-                              '${calculatePercenategeTotal()}% of Income',
-                              style: TextStyle(
-                                fontSize: 16.spMax,
-                                color: isDarkMode ? Colors.white : Colors.black,
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "${_calculateTotalPercent()}%",
+                                  style: TextStyle(
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color: lavenderDark,
+                                  ),
+                                ),
+                                Text(
+                                  "of Income Used",
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
-                      )
-                    : Padding(
-                        padding: EdgeInsets.only(
-                          right: 12.w,
-                          left: 12.w,
-                        ),
-                        child: CategoryBarChart(
-                          categoryToAmount: categoryToAmount,
-                        )),
+                      ),
               ),
+
+              /// Toggle Button
               Padding(
-                padding: EdgeInsets.only(top: 25.h),
-                child: TextButton(
+                padding: EdgeInsets.symmetric(vertical: 30.h),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: lavenderPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.w, vertical: 12.h),
+                  ),
                   onPressed: () {
                     setState(() {
                       isBarchart = !isBarchart;
                     });
                   },
-                  child: Text(S.of(context).barchart),
+                  child: Text(
+                    isBarchart ? "Show Pie Chart" : "Show Bar Chart",
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ),
+
+              /// Legend Section
               Expanded(
-                child: ListView.separated(
-                  padding: EdgeInsets.all(20.w),
-                  shrinkWrap: true,
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 20.w),
+                  itemCount: legends.length,
                   itemBuilder: (context, index) {
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        SvgPicture.asset(
-                          height: 40.h,
-                          imageSelect(image[index]),
-                        ),
-                        Text(
-                          legendTitles[index],
-                          style: TextStyle(
-                            fontSize: 14.spMax,
-                            color: isDarkMode ? Colors.black : Colors.white,
+                    return Container(
+                      margin: EdgeInsets.only(bottom: 12.h),
+                      padding: EdgeInsets.all(14.r),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(18.r),
+                        boxShadow: [
+                          BoxShadow(
+                            color: lavenderPrimary.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                        ),
-                        CircleAvatar(
-                          backgroundColor: pieChartSections[index].color,
-                          radius: 10,
-                        )
-                      ],
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: sections[index].color,
+                            radius: 12,
+                          ),
+                          12.horizontalSpace,
+                          Expanded(
+                            child: Text(
+                              legends[index],
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                                color: lavenderDark,
+                              ),
+                            ),
+                          ),
+                          SvgPicture.asset(
+                            imageSelect(categories[index]),
+                            height: 30.h,
+                          ),
+                        ],
+                      ),
                     );
                   },
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemCount: legendTitles.length,
                 ),
               ),
             ],
@@ -230,6 +254,8 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
       ),
     );
   }
+
+  /// Helper Methods
 
   String imageSelect(String type) {
     switch (type) {
@@ -252,19 +278,14 @@ class _ExpenseGraphPageState extends State<ExpenseGraphPage> {
     }
   }
 
-  String calculatePercentage(double amount) {
-    final totalAmount = expenseStore.totalExpenses;
-    final percentage = (amount / totalAmount) * 100;
-    return percentage.toStringAsFixed(1);
+  String _calculatePercentage(double amount) {
+    final total = expenseStore.totalExpenses;
+    return ((amount / total) * 100).toStringAsFixed(1);
   }
 
-  int calculatePercenategeTotal() {
-    final totalAmount = expenseStore.totalExpenses;
+  int _calculateTotalPercent() {
+    final totalExpense = expenseStore.totalExpenses;
     final totalIncome = expenseStore.totalIncome;
-    final percentage = (totalAmount / totalIncome) * 100;
-    if (percentage > 0) {
-      return percentage.toInt();
-    }
-    return percentage.toInt();
+    return ((totalExpense / totalIncome) * 100).toInt();
   }
 }

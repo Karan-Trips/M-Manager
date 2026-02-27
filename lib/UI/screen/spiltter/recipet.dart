@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:try1/utils/model.dart';
+import 'package:m_manager/utils/model.dart';
 
 class ReceiptPDF {
   static Future<Uint8List> generateReceiptAsBytes({

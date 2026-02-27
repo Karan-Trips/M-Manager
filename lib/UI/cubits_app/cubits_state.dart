@@ -1,4 +1,4 @@
-import 'package:try1/utils/model.dart';
+import 'package:m_manager/utils/model.dart';
 
 abstract class AddExpenseState {}
 

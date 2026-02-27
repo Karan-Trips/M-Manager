@@ -173,7 +173,7 @@ class S {
   /// `Expense Summary`
   String get expenseSummary {
     return Intl.message(
-      'Expense Summary',
+      'Expense',
       name: 'expenseSummary',
       desc: '',
       args: [],

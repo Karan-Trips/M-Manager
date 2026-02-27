@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import 'package:try1/widgets_screen/loading_screen.dart';
-import 'package:try1/auth/getx_auth/getx_login.dart';
-import 'package:try1/auth/reset_password.dart';
+import 'package:m_manager/widgets_screen/loading_screen.dart';
+import 'package:m_manager/auth/getx_auth/getx_login.dart';
+import 'package:m_manager/auth/reset_password.dart';
 
-import 'package:try1/auth/sign_up_page.dart';
-import 'package:try1/utils/design_container.dart';
+import 'package:m_manager/auth/sign_up_page.dart';
+import 'package:m_manager/utils/design_container.dart';
 
 import '../generated/l10n.dart';
 

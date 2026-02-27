@@ -24,9 +24,9 @@ class CategoryBarChart extends StatelessWidget {
                   gradient: LinearGradient(
                     colors: [
                       Colors.primaries[index % Colors.primaries.length]
-                          .withOpacity(0.8),
+                          .withValues(alpha: 0.8),
                       Colors.primaries[index % Colors.primaries.length]
-                          .withOpacity(0.5),
+                          .withValues(alpha: 0.5),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -35,7 +35,7 @@ class CategoryBarChart extends StatelessWidget {
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
                     toY: entry.value * 1.2,
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha: 0.2),
                   ),
                 ),
               ],

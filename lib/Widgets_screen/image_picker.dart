@@ -45,14 +45,18 @@ class ImagePickerService {
               leading: const Icon(Icons.camera_alt),
               title: Text(S.of(context).camera),
               onTap: () async {
-                Navigator.pop(context, await pickImageFromCamera());
+                final image = await pickImageFromCamera();
+                if (!context.mounted) return;
+                Navigator.pop(context, image);
               },
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
               title: Text(S.of(context).gallery),
               onTap: () async {
-                Navigator.pop(context, await pickImageFromGallery());
+                final image = await pickImageFromGallery();
+                if (!context.mounted) return;
+                Navigator.pop(context, image);
               },
             ),
           ],

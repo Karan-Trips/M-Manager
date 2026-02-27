@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:try1/utils/custome_cliper.dart';
+import 'package:m_manager/utils/custome_cliper.dart';
 
 class BezierContainer extends StatelessWidget {
   const BezierContainer({super.key});
