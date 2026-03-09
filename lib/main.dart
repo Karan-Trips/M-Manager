@@ -2,7 +2,6 @@
 
 import 'dart:ui';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,18 +11,17 @@ import 'package:flutter/material.dart' hide Card;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:m_manager/ui/cubits_app/cubits_app.dart';
 import 'package:m_manager/generated/l10n.dart';
 import 'package:m_manager/widgets_screen/internet_connectivity/internet_connectivity.dart';
 import 'package:m_manager/widgets_screen/no_internetpage.dart';
 import 'package:m_manager/app_db.dart';
 import 'package:m_manager/auth/login_screen.dart';
-import 'package:m_manager/fcm/notification.dart';
 import 'package:m_manager/firebase_options.dart';
 import 'package:m_manager/firebase_store/expense_store.dart';
 import 'package:m_manager/locator.dart';
 import 'package:m_manager/ui/screen/home_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:theme_provider/theme_provider.dart';
 import 'package:m_manager/ui/welcome_screen/intro_page.dart';
@@ -35,11 +33,13 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox<String>('authBox');
 
+  await dotenv.load(fileName: ".env");
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   await setuplocator();
   await locator.isReady<AppDb>();
@@ -49,7 +49,7 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  PushNotificationsManager().init();
+  // PushNotificationsManager().init();
   FlutterError.onError = (errorDetails) {
     FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
   };
@@ -90,10 +90,6 @@ class MyMoneyManagerApp extends StatelessWidget {
       ],
       child: ScreenUtilInit(
         builder: (context, child) {
-          final Brightness brightness =
-              MediaQuery.of(context).platformBrightness;
-          final isDarkMode = brightness == Brightness.dark;
-
           return GetMaterialApp(
             smartManagement: SmartManagement.full,
             supportedLocales: const [

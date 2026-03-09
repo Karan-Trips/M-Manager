@@ -19,6 +19,8 @@ import 'package:m_manager/firebase_store/expense_store.dart';
 import 'package:m_manager/ui/screen/add_trans.dart';
 import 'package:m_manager/ui/screen/histroy.dart';
 import 'package:m_manager/ui/screen/spiltter/split_page.dart';
+import 'package:m_manager/ui/screen/chatbot_sheet.dart';
+import 'package:m_manager/ui/screen/chatbot_popup.dart';
 
 // ─── Theme Constants ──────────────────────────────────────────────────────────
 const _purple = Color(0xFF6A5AE0);
@@ -65,6 +67,19 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage>
       expenseStore.fetchExpenses();
       expenseStore.fetchIncome();
       _animCtrl.forward();
+
+      // Show auto-popup AI advisor a few seconds after loading
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted &&
+            expenseStore.totalIncome > 0 &&
+            expenseStore.totalExpenses > 0) {
+          ChatbotPopup.show(
+            context,
+            income: expenseStore.totalIncome,
+            expenses: expenseStore.totalExpenses,
+          );
+        }
+      });
     } else {
       print('User is not logged in');
     }
@@ -194,14 +209,33 @@ class _MoneyManagerHomePageState extends State<MoneyManagerHomePage>
             });
           },
         ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => Get.to(() => const AddExpensePage()),
-          backgroundColor: _purple,
-          icon: const Icon(Icons.add_rounded, color: Colors.white),
-          label: const Text("Add Transaction",
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-          elevation: 8,
+        floatingActionButton: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              heroTag: 'chatbot_fab',
+              onPressed: () => ChatbotSheet.show(
+                context,
+                income: expenseStore.totalIncome,
+                expenses: expenseStore.totalExpenses,
+              ),
+              backgroundColor: Colors.white,
+              child: const Icon(Icons.smart_toy_rounded, color: _purple),
+              elevation: 4,
+            ),
+            SizedBox(height: 12.h),
+            FloatingActionButton.extended(
+              heroTag: 'add_expense_fab',
+              onPressed: () => Get.to(() => const AddExpensePage()),
+              backgroundColor: _purple,
+              icon: const Icon(Icons.add_rounded, color: Colors.white),
+              label: const Text("Add Transaction",
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.w600)),
+              elevation: 8,
+            ),
+          ],
         ),
       ),
     );

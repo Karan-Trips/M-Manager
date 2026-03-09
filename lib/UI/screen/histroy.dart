@@ -7,6 +7,7 @@ import 'package:lottie/lottie.dart';
 import 'package:m_manager/widgets_screen/adavance_calcander.dart';
 import 'package:m_manager/firebase_store/expense_store.dart';
 import 'package:m_manager/ui/screen/graph.dart';
+import 'package:m_manager/ui/screen/chatbot_sheet.dart';
 
 import '../../generated/l10n.dart';
 
@@ -129,6 +130,29 @@ class _ExpenseSummaryPageState extends State<ExpenseSummaryPage>
         ),
       ),
       actions: [
+        Container(
+          margin: EdgeInsets.only(right: 12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.07),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2))
+            ],
+          ),
+          child: IconButton(
+            icon: const Icon(Icons.smart_toy_rounded, color: _purple, size: 20),
+            onPressed: () {
+              ChatbotSheet.show(
+                context,
+                income: expenseStore.totalIncome,
+                expenses: expenseStore.totalExpenses,
+              );
+            },
+          ),
+        ),
         Container(
           margin: EdgeInsets.only(right: 12.w),
           decoration: BoxDecoration(

@@ -6,6 +6,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -22,7 +23,6 @@ const _purple = Color(0xFF6A5AE0);
 const _purpleLight = Color(0xFF8F7CFF);
 const _purpleSoft = Color(0xFFF0EEFF);
 const _green = Color(0xFF22C55E);
-const _red = Color(0xFFEF4444);
 const _bg = Color(0xFFF5F3FF);
 
 class AddExpensePage extends StatefulWidget {
@@ -218,7 +218,11 @@ class _AddExpensePageState extends State<AddExpensePage> {
                 textColor: Colors.white,
                 fontSize: 16.sp,
               );
-              Get.to(() => ReceiptPage());
+              Get.to(
+                () => ProviderScope(
+                  child: const ReceiptPage(),
+                ),
+              );
             },
             text: "Scan Receipt",
             icon: Icons.document_scanner_outlined,
