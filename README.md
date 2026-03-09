@@ -74,12 +74,11 @@ Follow these steps to get a copy of the project up and running on your local mac
 
 ## 📱 Screenshots
 
-> *(Add screenshots of your application here. For example: Home Screen, Expense Logging, AI Chatbot Popup, History View)*
-
 <p float="left">
-  <!-- <img src="screenshots/home.png" width="30%" /> -->
-  <!-- <img src="screenshots/chatbot.png" width="30%" /> -->
-  <!-- <img src="screenshots/history.png" width="30%" /> -->
+  <img src="screenshot/dashboard.png" width="30%" />
+  <img src="screenshot/history.png" width="30%" />
+  <img src="screenshot/setting.png" width="30%" />
+  <img src="screenshot/setting_hindi.png" width="30%" />
 </p>
 
 ## 🤝 Contributing
